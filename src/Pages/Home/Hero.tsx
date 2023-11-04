@@ -54,7 +54,7 @@ function Hero () {
                             Wiki Racer
                         </Heading>
 
-                        <Button bg='brand.400' size='md'>
+                        <Button size='md'>
                             Play now!
                         </Button>
                     </VStack>
@@ -70,7 +70,7 @@ function Hero () {
                     </Flex>
                 </GridItem>
 
-                <Divider mt={6} mb={6}/>
+                <Divider mt={5} mb={5}/>
 
                 <Grid
                     templateColumns={{
