@@ -37,7 +37,7 @@ function Hero () {
 
     return (
 
-        <Box as={Container} maxW='90%' mt={14} >
+        <Box as={Container} maxW='90%' mt={15} >
 
             <Grid 
                 templateColumns={{

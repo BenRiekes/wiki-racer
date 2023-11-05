@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, '../build')));
 
 //-----------Types---------------------
 
-type Article = {
+interface Article {
     title: string;
     body: string;
     url: string;
@@ -29,12 +29,16 @@ type Article = {
 
 app.get('/api/fetch-article', async (req: Request, res: Response) => {
 
-    const requestURL = req.query.url;
+    const requestURL = req.query.url as string;
     const baseURL = 'https://en.wikipedia.org/wiki/';
     const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
 
-    if (typeof requestURL !== 'string' || !requestURL.startsWith(baseURL)) {
-        return res.status(400).json({message: 'Invalid URL'});
+    if (typeof requestURL !== 'string') {
+        return res.status(400).json({message: `Invalid URL: ${requestURL}`});
+    } 
+
+    if (requestURL !== RANDOM_URL && !requestURL.startsWith(baseURL, 0)) {
+        return res.status(400).json({message: `Invalid URL: ${requestURL}`});
     }
 
     try {

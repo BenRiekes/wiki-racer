@@ -1,4 +1,4 @@
-import App from './App.tsx'
+import App from './App'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom';
@@ -10,7 +10,8 @@ const colors = {
     200: '#7B1E7A',
     300: '#B33F62',
     400: '#F9564F',
-    500: '#F3C677'
+    500: '#F3C677',
+    600: '#ffffff'
   }
 };
 
