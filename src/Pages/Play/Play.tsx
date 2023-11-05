@@ -2,11 +2,14 @@ import React, { useState, useEffect} from 'react';
 import axios, { AxiosError } from 'axios';
 
 
+//------------------------------
+
 type Article = {
     title: string;
     body: string;
     url: string;
     links: string[];
+    isHref: { [key: string]: boolean };
 }
     
 type PlayerState = {
@@ -15,12 +18,17 @@ type PlayerState = {
 }
 
 //------------------------------
-  
+
+const initState: Article = {
+    title: '',
+    body: '',
+    url: '',
+    links: [],
+    isHref: {}
+} 
 
 function Play () {
-
-    const [article, setArticle] = useState(null);
-    const [error, setError] = useState<any>(null);
+    const [article, setArticle] = useState<Article>(initState);
 
     useEffect(() => {
 
@@ -33,19 +41,16 @@ function Play () {
                     }
                 });
 
-                setArticle(response.data);
-            }
-
-            catch (error: any) {
-                setError(error);
+                setArticle(response.data); 
+            } catch (error: any) {
+                console.error('An unexpected error occurred: ' + error);
             }
         }
 
         fetchArticle();
     }, []);
 
-    console.log(article);
-    console.log(error);
+    
 
     return (
         <div>Play</div>
