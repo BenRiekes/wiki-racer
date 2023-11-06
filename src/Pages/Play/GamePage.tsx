@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios';
 import Icon from '@mdi/react';
 import { mdiRefresh } from '@mdi/js';
 import { Button, Box, HStack, Heading, VStack} from '@chakra-ui/react';
-import { Article, PlayerState, fetchArticle } from '../../Utils/Functions';
+import { GameProvider, useGame, Article, PlayerState } from '../../Context/GameContext';
 
 
 interface GamePageProps {

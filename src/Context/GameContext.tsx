@@ -14,7 +14,7 @@ interface GameContextState {
     handleRootTail: (actions: 'Root' | 'Tail' | 'Both') => Promise<void>;
 }
 
-interface Article {
+export interface Article {
     title: string;
     body: string;
     url: string;
@@ -22,7 +22,7 @@ interface Article {
     isHref: { [key: string]: boolean };
 }
 
-interface PlayerState {
+export interface PlayerState {
     currentArticle: Article;
     history: Article[];
 }
