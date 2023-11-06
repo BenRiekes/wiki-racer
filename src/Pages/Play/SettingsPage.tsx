@@ -4,68 +4,18 @@ import axios, { AxiosError } from 'axios';
 import Icon from '@mdi/react';
 import { mdiRefresh } from '@mdi/js';
 import { Button, Box, HStack, Heading, VStack} from '@chakra-ui/react';
+import { Article, PlayerState, fetchArticle } from '../../Utils/Functions';
 
+function SettingsPage () {
 
-//------------------------------
-
-interface Article {
-    title: string;
-    body: string;
-    url: string;
-    links: string[];
-    isHref: { [key: string]: boolean };
-}
-    
-interface PlayerState {
-    currentArticle: Article;
-    history: Article[];
-}
-
-//------------------------------
-
-const initArticleState: Article = {
-    title: '',
-    body: '',
-    url: '',
-    links: [],
-    isHref: {}
-}
-
-const initPlayerState: PlayerState = {
-    currentArticle: initArticleState,
-    history: []
-}
-
-//-----------------------------
-
-function Play () {
-
-    const [playerState, setPlayerState] = useState<PlayerState>(initPlayerState);
-    const [opponentState, setOpponentState] = useState<PlayerState>(initPlayerState);
-    const [rootTail, setRootTail] = useState<[Article, Article]>([initArticleState, initArticleState]);
-
-    //--------------------------
-
-    async function fetchArticle (url?: string): Promise<Article> {
-
-        if (typeof url === 'undefined') {
-            url = 'https://en.wikipedia.org/wiki/Special:Random';
-        }
-    
-        try {
-            const response = await axios.get<Article>('/api/fetch-article', {
-                params: { url: url }
-            });
-            
-            return response.data;
-        
-        } catch (error) {
-            console.log('An error occurred: ', error);
-            throw new Error('Faled to fetch article');
-        }
+    const initArticleState: Article = {
+        title: '', body: '' , url: '',
+        links: [], isHref: {}
     }
 
-    //----------------------------
+    const [rootTail, setRootTail] = useState<[Article, Article]>(
+        [initArticleState, initArticleState]
+    );
 
     async function fetchRootAndTail (actions: 'Root' | 'Tail' | 'Both') {
 
@@ -84,8 +34,14 @@ function Play () {
         fetchRootAndTail('Both');
     }, [])
 
-    //----------------------------
+    return (
+        <div>Settings Page</div>
+    );
+}
 
+export default SettingsPage;
+
+/*
     const GameHeader: React.FC = () => {
 
         const handleVisitClick = (index: number) => {
@@ -139,15 +95,4 @@ function Play () {
             </VStack>
         );
     }
-    
-
-    return (
-        
-        <VStack w='100%' mt={15} spacing={10} alignItems='center'>
-
-            <GameHeader />
-        </VStack>
-    )
-}
-
-export default Play; 
+*/
