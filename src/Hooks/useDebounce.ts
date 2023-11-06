@@ -12,8 +12,8 @@ import React, { useState, useEffect } from 'react';
     - This ultimately saves on performance
 */
 
-function useDebounce<T>(value: T, delay:  number): T { 
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+function useDebounce (value: string, delay:  number): string { 
+    const [debouncedValue, setDebouncedValue] = useState<string>(value);
 
     useEffect(() => {   
 

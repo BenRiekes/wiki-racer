@@ -1,7 +1,8 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback} from 'react';
 import axios, { AxiosError } from 'axios';
 
 import Icon from '@mdi/react';
+import SearchInput from '../../Components/SearchInput';
 
 import { mdiRefresh } from '@mdi/js';
 import { Button, Box, HStack, Heading, VStack} from '@chakra-ui/react';
@@ -126,8 +127,19 @@ function GameContainer () {
 
 function SettingsScreen () {
 
+    const handleSearchInput = useCallback((debouncedValue: string) => {
+        console.log('Search value changed to: ', debouncedValue);
+    }, [])
+
     return (
-        <div></div>
+        <div>
+            <SearchInput 
+                value=''
+                onValChange={handleSearchInput}
+                debounceTime={500}
+                placeHolder='Search...'
+            />
+        </div>
     );
 }
 
