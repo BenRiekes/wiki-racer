@@ -1,6 +1,6 @@
 import React from 'react';
 import {Route, Routes } from "react-router-dom";
-import { GameProvider } from './Context/GameContext';
+//import { GameProvider } from './Context/GameContext';
 import Navbar from './Componenets/Navbar';
 import Home from './Pages/Home/Home';
 import GameContainer  from './Pages/Play/GameContainer';
@@ -11,21 +11,16 @@ function App() {
 
   return (
     <>
+      <Navbar />
 
-      <GameProvider>
-
-        <Navbar />
-
-        <div>
-          <Routes>
-            <Route path='/' element={<Home/>}/>
-            <Route path='/play' element={<GameContainer/>}/>
-            <Route path='profile' element={<Profile/>}/>
-          </Routes>
-        </div>
-      </GameProvider>
-
-
+      <div>
+        <Routes>
+          <Route path='/' element={<Home/>}/>
+          <Route path='/play' element={<GameContainer/>}/>
+          <Route path='profile' element={<Profile/>}/>
+        </Routes>
+      </div>
+    
     </>
   );
 }
