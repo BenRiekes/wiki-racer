@@ -1,20 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
+
 import { GameProps } from "./GameContainer";
+import { Article } from "../../Utils/Functions";
+import ArticleCard from "../../Components/ArticleCard";
 
 import Icon from "@mdi/react";
 import { mdiClose, mdiRefresh, mdiCheck} from "@mdi/js";
-import SmallCard from "../../Components/SmallCard";
-import { Flex, VStack, HStack, Heading, Button, ButtonGroup, IconButton, Divider, Skeleton, SkeletonCircle, SkeletonText, InputRightElement, useColorMode, useColorModeValue, Box, Input, InputGroup, Card, CardBody, Image, Text, CardFooter, Grid, AspectRatio } from "@chakra-ui/react";
-import { Article } from "../../Utils/Functions";
-import ArticleCard from "../../Components/ArticleCard";
+import { Flex, VStack, HStack, Heading, Button, ButtonGroup, 
+    IconButton, Divider, InputRightElement, Box, Input, InputGroup
+} from "@chakra-ui/react";
+
 
 
 
 function SettingsScreen (props: GameProps) {
 
     const articlesGenerated = 20;
-    const startRef = useRef<HTMLInputElement | null>(null);
     const endRef = useRef<HTMLInputElement | null>(null);
+    const startRef = useRef<HTMLInputElement | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [exploreArticles, setExploreArticles] = useState<Article[]>([]);
 
@@ -33,8 +36,7 @@ function SettingsScreen (props: GameProps) {
                 console.error('Failed to fetch articles: ', error);
             } finally {
                setIsLoading(false);
-            }
-           
+            } 
         }
 
         fetchArticles();
@@ -69,7 +71,7 @@ function SettingsScreen (props: GameProps) {
                     alignItems='center' justifyContent='flex-start' 
                     boxShadow='md' borderRadius='lg'
                 >
-                    <Heading size='2xl'color='white'>
+                    <Heading size='2xl'color='white' alignSelf='flex-start'>
                         Configure
                     </Heading>
                     
@@ -91,7 +93,7 @@ function SettingsScreen (props: GameProps) {
                                         onClick = {() => window.open(article.url, '_blank')}
                                     >
                                         
-                                        {truncate(article.title, 10)}  
+                                        {truncate(article.title, 8)}  
                                     </Button>
 
                                     <IconButton 
