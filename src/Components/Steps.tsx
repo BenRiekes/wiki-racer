@@ -1,6 +1,6 @@
 import React from "react";
 import { CardProps } from './SmallCard';
-import { Stepper, Step, StepIndicator, StepStatus, StepIcon, StepNumber, StepSeparator, Card, CardBody, Heading, Text, Stack } from "@chakra-ui/react";
+import { Stepper, Step, StepIndicator, StepStatus, StepIcon, StepNumber, StepSeparator, Card, CardBody, Heading, Text, Stack, useBreakpointValue } from "@chakra-ui/react";
 
 function StepCard (props: CardProps) {
 
@@ -29,9 +29,15 @@ function StepCard (props: CardProps) {
 
 function Steps ({props, heading}: {props: CardProps[], heading: string}) {
 
+    const stepperWidth = useBreakpointValue({base: '100%', md: '45%', lg: '45%'});
+
     return (
 
-        <Stepper index={1} orientation='vertical' size='md' height='auto' gap='5' mb={2}>
+        <Stepper 
+            index={1} orientation='vertical' size='md' 
+            height='auto' width={stepperWidth}
+            gap='5' mb={2}
+        >
 
             <Heading size='xl' color='white' alignSelf='flex-start'>
                 {heading}

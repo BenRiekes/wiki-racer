@@ -69,7 +69,7 @@ function SettingsScreen (props: GameProps) {
                     gap={5}  p={5} w='100%' h='auto' 
                     direction={{base:'column', md: 'row'}}
                     alignItems='center' justifyContent='flex-start' 
-                    boxShadow='md' borderRadius='lg'
+                    boxShadow='md' borderRadius='lg' 
                 >
                     <Heading size='2xl'color='white' alignSelf='flex-start'>
                         Configure

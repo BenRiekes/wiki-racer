@@ -72,6 +72,8 @@ function GameContainer () {
     //Lets user select the start and end articles via randomization
 
 
+
+
     async function handleRoot (add: boolean, url?: string) {
 
         if (!add) {

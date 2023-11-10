@@ -67,7 +67,7 @@ function ArticleCard ({article, isLoading, gameProps}: ArticleCardProps ) {
 
             {!isLoading && article && (
                 <>
-                    <Divider />
+                    
 
                     <CardFooter py={2}>
                         <HStack w='100%' spacing={2}>
