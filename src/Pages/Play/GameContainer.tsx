@@ -24,9 +24,11 @@ export interface GameProps {
     setRootTail: React.Dispatch<React.SetStateAction<[Article | null, Article | null] | null>>;
     
     handlePlayingStatus: () => void;
-    fetchArticle: (url?: string) => Promise<Article>;
+    
+    handleRoot: (add: boolean, url?: string) => void;
+    handleTail: (add: boolean, url?: string) => void;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
-    handleRootTail: (add: boolean, actions: 'Root' | 'Tail' | 'Both') => Promise<void>;
+    fetchArticle: (url?: string) => Promise<Article>;
 }
 
 
@@ -68,33 +70,45 @@ function GameContainer () {
     }
 
     //Lets user select the start and end articles via randomization
-    async function handleRootTail (add: boolean, actions: 'Root' | 'Tail' | 'Both') { 
 
-        const stateMap = {
-            'Root': rootTail ? rootTail[0] : null,
-            'Tail': rootTail ? rootTail[1] : null,
+
+    async function handleRoot (add: boolean, url?: string) {
+
+        if (!add) {
+            setRootTail([null, rootTail ? rootTail[1] : null]);
+            return;
         }
-    
-        let root = stateMap['Root'];
-        let tail = stateMap['Tail'];
-    
-        if (actions === 'Root' || actions === 'Both') {
-            root = add ? await fetchArticle() : null;
+
+        if (url && (!url.startsWith('https://en.wikipedia.org/wiki/') || url === rootTail?.[1]?.url)) {
+            return;
         }
-    
-        if (actions === 'Tail' || actions === 'Both') {
-            tail = add ? await fetchArticle() : null;
-        }
-        
-        setRootTail([root, tail]);
+
+        const locArticle = url ? await fetchArticle(url) : await fetchArticle();
+        setRootTail([locArticle, rootTail ? rootTail[1] : null]);
     }
 
+    async function handleTail (add: boolean, url?: string) {
+
+        if (!add) {
+            setRootTail([rootTail ? rootTail[0] : null, null]);
+            return;
+        }
+
+        if (url && (!url.startsWith('https://en.wikipedia.org/wiki/') || url === rootTail?.[0]?.url)) {
+            return;
+        }
+
+        const locArticle = url ? await fetchArticle(url) : await fetchArticle();
+        setRootTail([rootTail ? rootTail[0] : null, locArticle]);
+    }
+    
+    
     //--------------------------------------------------------
 
     const props: GameProps = {
         isPlaying, setIsPlaying, rootTail, setRootTail,
         playerState, setPlayerState, opponentState, setOpponentState,
-        fetchArticle, handlePlayingStatus, handlePlayerState, handleRootTail,
+        fetchArticle, handlePlayingStatus, handlePlayerState, handleRoot, handleTail
     };
  
     return (
