@@ -4,17 +4,18 @@ import { GameProps } from "./GameContainer";
 import Icon from "@mdi/react";
 import { mdiClose, mdiRefresh, mdiCheck} from "@mdi/js";
 import SmallCard from "../../Components/SmallCard";
-import { Flex, VStack, HStack, Heading, Button, ButtonGroup, IconButton, Divider, InputRightElement, useColorMode, useColorModeValue, Box, Input, InputGroup, Card, CardBody, Image, Text, CardFooter, Grid, AspectRatio } from "@chakra-ui/react";
+import { Flex, VStack, HStack, Heading, Button, ButtonGroup, IconButton, Divider, Skeleton, SkeletonCircle, SkeletonText, InputRightElement, useColorMode, useColorModeValue, Box, Input, InputGroup, Card, CardBody, Image, Text, CardFooter, Grid, AspectRatio } from "@chakra-ui/react";
 import { Article } from "../../Utils/Functions";
+import ArticleCard from "../../Components/ArticleCard";
 
-const wikipediaImage = 
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Wikipedia_logo_puzzle_globe_spins_horizontally_and_vertically%2C_revealing_the_contents_of_all_of_its_puzzle_pieces_%284K_resolution%29_%28VP9%29.webm/2160px--Wikipedia_logo_puzzle_globe_spins_horizontally_and_vertically%2C_revealing_the_contents_of_all_of_its_puzzle_pieces_%284K_resolution%29_%28VP9%29.webm.jpg'
-;
+
 
 function SettingsScreen (props: GameProps) {
 
+    const articlesGenerated = 20;
     const startRef = useRef<HTMLInputElement | null>(null);
     const endRef = useRef<HTMLInputElement | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [exploreArticles, setExploreArticles] = useState<Article[]>([]);
 
     useEffect(() => {
@@ -22,11 +23,18 @@ function SettingsScreen (props: GameProps) {
         props.handleTail(true);
 
         async function fetchArticles () {
+            
+            try {
+                const articlePromises = Array.from({length: articlesGenerated}, () => props.fetchArticle());
+                const articles = await Promise.all(articlePromises);
+                setExploreArticles(articles);
 
-           const articlesGenerated = 20;
-           const articlePromises = Array.from({length: articlesGenerated}, () => props.fetchArticle());
-           const articles = await Promise.all(articlePromises);
-           setExploreArticles(articles);
+            } catch (error) {
+                console.error('Failed to fetch articles: ', error);
+            } finally {
+               setIsLoading(false);
+            }
+           
         }
 
         fetchArticles();
@@ -43,17 +51,12 @@ function SettingsScreen (props: GameProps) {
         return text.substring(0, length) + '...';
     }
 
-    //----------------------------------------
-    
-
     function handleInput(ref: React.RefObject<HTMLInputElement>, handler: (add: boolean, url?: string) => void) {
         
         if (ref.current?.value) {
             handler(true, ref.current.value);
         }
     }
-    
-    //----------------------------------------
 
     return (
         <Flex width='100%' h='auto' justifyContent='center' bg='blue.100'>
@@ -64,10 +67,10 @@ function SettingsScreen (props: GameProps) {
                     gap={5}  p={5} w='100%' h='auto' 
                     direction={{base:'column', md: 'row'}}
                     alignItems='center' justifyContent='flex-start' 
-                    boxShadow='xl' borderRadius='lg'
+                    boxShadow='md' borderRadius='lg'
                 >
                     <Heading size='2xl'color='white'>
-                        Configure Game
+                        Configure
                     </Heading>
                     
                     <Divider orientation='vertical' borderColor='white' />
@@ -83,10 +86,12 @@ function SettingsScreen (props: GameProps) {
                             {article ? (
 
                                 <ButtonGroup size='lg' variant='solid' isAttached>
-                                    <Button minW='100px' 
+
+                                    <Button 
                                         onClick = {() => window.open(article.url, '_blank')}
                                     >
-                                        {truncate(article.title, 10)}
+                                        
+                                        {truncate(article.title, 10)}  
                                     </Button>
 
                                     <IconButton 
@@ -122,13 +127,11 @@ function SettingsScreen (props: GameProps) {
                     ))}
                 </Flex>
 
-                {/* Custom Config: ----------------------------------- */}
-
                 <Flex 
                     gap={5}  p={5} w='100%' h='auto' 
                     direction={{base:'column', md: 'row'}}
                     alignItems='center' justifyContent='flex-start' 
-                    boxShadow='sm' borderRadius='lg'
+                    boxShadow='md' borderRadius='lg'
                 >
 
                     <VStack spacing={5} w='100%' alignSelf='flex-start' wrap='wrap'>
@@ -138,11 +141,13 @@ function SettingsScreen (props: GameProps) {
                         </Heading>
 
                         <InputGroup size='lg' color='white'>
+
                             <Input  
                                 ref={startRef} 
                                 pr='4.5rem' 
                                 placeholder='Start Link:'
                             />
+
                             <InputRightElement width='4.5rem'>
                                 <Button h='1.75rem' size='sm' onClick={() => handleInput(startRef, props.handleRoot)}>
                                     <Icon path={mdiCheck} size={1}/>
@@ -151,11 +156,13 @@ function SettingsScreen (props: GameProps) {
                         </InputGroup>
 
                         <InputGroup size='lg' color='white'>
+
                             <Input 
                                 ref={endRef} 
                                 pr='4.5rem' 
                                 placeholder='End Link:'
                             />
+
                             <InputRightElement width='4.5rem'>
                                 <Button h='1.75rem' size='sm' onClick={() => handleInput(endRef, props.handleTail)}>
                                     <Icon path={mdiCheck} size={1}/>
@@ -165,9 +172,6 @@ function SettingsScreen (props: GameProps) {
                     </VStack>
                 </Flex>
 
-
-                {/* Explore Config: ----------------------------------- */}
-
                 <VStack p={5} mb={5} spacing={2} width='100%' borderRadius='lg' boxShadow='md'>
 
                     <Heading alignSelf='flex-start' size='xl' color='white'>
@@ -175,6 +179,7 @@ function SettingsScreen (props: GameProps) {
                     </Heading>
 
                     <Box width='100%' overflowX='scroll'
+
                         css={{ 
                             '&::-webkit-scrollbar': {
                                 width: '0.6em',
@@ -188,57 +193,19 @@ function SettingsScreen (props: GameProps) {
                     >
                         <HStack spacing={5} paddingY='15px'>
 
-                            {exploreArticles.map((article, index) => (
-
-                                <Card key={index}
-                                    size='sm' width='225px' 
-                                    bg='white' boxShadow='md' borderRadius='md'
-                                    display='inline-block' flexShrink={0}
-                                >
-                                    <AspectRatio ratio={1}>
-                                        <Image 
-                                            src={wikipediaImage}
-                                            alt={'Wiki Logo'}
-                                            objectFit='cover'
-                                            borderRadius='lg'
-                                        />
-                                    </AspectRatio>
-
-                                    <CardBody mt={2} p={3}>
-
-                                        <VStack spacing={2} alignItems='flex-start'>
-
-                                            <Heading size='sm' textDecor='underline' cursor='pointer'
-                                                onClick={() => window.open(article.url, '_blank')}
-                                            >
-                                                {truncate(article.title, 20)}
-                                            </Heading>
-                                            
-                                            <Text noOfLines={2}>{truncate(article.body, 50)}</Text>
-                                        </VStack>
-                                    </CardBody>
-
-                                    <Divider/>
-
-                                    <CardFooter py={2}>
-                                        
-                                        <HStack w= '100%' spacing = {2}>
-                                            <Button bg='green.50' onClick={() => props.handleRoot(true, article.url)}>
-                                                Start
-                                            </Button>
-
-                                            <Button bg='green.50' onClick={() => props.handleTail(true, article.url)}>
-                                                End
-                                            </Button>
-                                        </HStack>
-                                    </CardFooter>
-                                </Card>
-                            ))}
+                            {isLoading ? (
+                                Array.from({ length: articlesGenerated }).map((_, index) => (
+                                    <ArticleCard key={index} isLoading={true} gameProps={props} />
+                                ))
+                            ) : (
+                                exploreArticles.map((article, index) => (
+                                    <ArticleCard key={index} article={article} isLoading={false} gameProps={props} />
+                                ))
+                            )}
                         </HStack>
                     </Box>
                </VStack>
             </VStack>
-
         </Flex>
     );
 }

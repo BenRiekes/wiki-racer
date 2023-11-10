@@ -33,7 +33,7 @@ function Steps ({props, heading}: {props: CardProps[], heading: string}) {
 
         <Stepper index={1} orientation='vertical' size='md' height='auto' gap='5' mb={2}>
 
-            <Heading size='lg' color='white' alignSelf='flex-start'>
+            <Heading size='xl' color='white' alignSelf='flex-start'>
                 {heading}
             </Heading>
 
