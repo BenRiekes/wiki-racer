@@ -7,7 +7,7 @@ import cors from 'cors';
 
 //---------Setup------------------------
 
-const PORT = 3001;
+const PORT = 3002;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +44,7 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
     try {
 
         let article: Article = {
-            title: '', body: '', url: '',
+            title: '', body: '', url: '', 
             links: [], isHref: {}
         };
 

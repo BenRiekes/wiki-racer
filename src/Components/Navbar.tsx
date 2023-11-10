@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react';
 
 
-
 interface NavbarProps {
     children: React.ReactNode;
     to: string;
@@ -26,10 +25,10 @@ const NavLink = (props: NavbarProps) => {
 
     return (
         <Box 
-            as={Link} px={2} py={1} rounded = {'md'} to={props.to}
+            as={Link} px={2} py={1} rounded = {'md'} to={props.to} color='white'
             _hover = {{
                 textDecoration: 'none', 
-                bg: useColorModeValue('brand.400', 'brand.400')
+                bg: 'blue.50'
             }}
         >
             {children}
@@ -42,7 +41,7 @@ export default function Navbar () {
 
     return (
         <>
-            <Box bg={useColorModeValue('brand.500', 'gray.500')} px={4}>
+            <Box bg='red.100' px={4}>
 
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
 
@@ -60,11 +59,8 @@ export default function Navbar () {
 
                     <HStack spacing={8} alignItems={'center'}>
 
-                        <HStack spacing={0}>
-                            <Icon path={mdiWikipedia} size={1}/>
-                            <Heading size='md'>iki Racer</Heading>
-                        </HStack>
-
+                        <Heading size='md' color='white'>Wiki Racer</Heading>
+                
                         <HStack 
                             as={'nav'} 
                             spacing={4} 

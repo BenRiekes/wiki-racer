@@ -2,59 +2,42 @@ import React, { useState, useEffect, useCallback} from 'react';
 import axios, { AxiosError } from 'axios';
 
 import Icon from '@mdi/react';
+import GameScreen from './GameScreen';
+import SettingsScreen from './SettingsScreen';
 import SearchInput from '../../Components/SearchInput';
+import { Article, PlayerState, fetchArticle } from '../../Utils/Functions'; 
 
 import { mdiRefresh } from '@mdi/js';
-import { Button, Box, HStack, Heading, VStack} from '@chakra-ui/react';
+import { Button, Box, HStack, Heading, VStack, Flex} from '@chakra-ui/react';
 
 //----------------------------
 
-export interface Article {
-    title: string;
-    body: string;
-    url: string;
-    links: string[];
-    isHref: { [key: string]: boolean };
-};
+export interface GameProps {
+    isPlaying: boolean;
+    playerState: PlayerState | null;
+    opponentState: PlayerState | null;
+    rootTail: [Article | null, Article | null] | null;
 
-export interface PlayerState {
-    currentArticle: Article;
-    history: Article[];
-};
+    setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+    setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
+    setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
+    setRootTail: React.Dispatch<React.SetStateAction<[Article | null, Article | null] | null>>;
+    
+    handlePlayingStatus: () => void;
+    fetchArticle: (url?: string) => Promise<Article>;
+    handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
+    handleRootTail: (add: boolean, actions: 'Root' | 'Tail' | 'Both') => Promise<void>;
+}
 
 
 //----------------------------
 
 function GameContainer () {
 
-    //settings to null is good practice but my god it suks ass to deal w/
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
-    const [rootTail, setRootTail] = useState<[Article, Article] | null>(null);
     const [playerState, setPlayerState] = useState<PlayerState |  null>(null);
     const [opponentState, setOpponentState] = useState<PlayerState | null>(null);
-
-    
-    //---------------------------------------------------------
-
-    async function fetchArticle (url?: string): Promise<Article> {
-
-        if (typeof url === 'undefined') {
-            url = 'https://en.wikipedia.org/wiki/Special:Random';
-        }
-
-        try {
-            const res = await axios.get<Article>('/api/fetch-article', {
-                params: { url: url }
-            });
-
-            const resArticle: Article = res.data;
-            return resArticle;
-
-        } catch (error) {
-            console.log('Error occurred: ' + error);
-            throw new Error ('Failed to fetch article');
-        }
-    } 
+    const [rootTail, setRootTail] = useState<[Article | null, Article | null] | null>(null);
 
     //---------------------------------------------------------
 
@@ -65,12 +48,6 @@ function GameContainer () {
 
     //Checks for win on each turn and sets state of new articles clicked
     function handlePlayerState (article: Article, player: 'Player' | 'Opp') {
-
-        if (rootTail?.[1].url === article.url) { //Check for win
-            alert(`${player} has won in ${playerState?.history.length} clicks!`);
-            handlePlayingStatus();
-            return;
-        }
 
         let history = [];
 
@@ -91,63 +68,46 @@ function GameContainer () {
     }
 
     //Lets user select the start and end articles via randomization
-    async function handleRootTail (actions: 'Root' | 'Tail' | 'Both') { 
+    async function handleRootTail (add: boolean, actions: 'Root' | 'Tail' | 'Both') { 
 
-        if (rootTail === null) {
-            const [root, tail] = await Promise.all([
-                fetchArticle(), fetchArticle()
-            ]);
-
-            setRootTail([root, tail]);
-            return;
+        const stateMap = {
+            'Root': rootTail ? rootTail[0] : null,
+            'Tail': rootTail ? rootTail[1] : null,
         }
-
-        const root = actions === 'Root' || actions === 'Both' ?
-            await fetchArticle() : rootTail[0]
-        ;
-
-        const tail = actions === 'Tail' || actions === 'Both' ?
-            await fetchArticle() : rootTail[1]
-        ;
-
+    
+        let root = stateMap['Root'];
+        let tail = stateMap['Tail'];
+    
+        if (actions === 'Root' || actions === 'Both') {
+            root = add ? await fetchArticle() : null;
+        }
+    
+        if (actions === 'Tail' || actions === 'Both') {
+            tail = add ? await fetchArticle() : null;
+        }
+        
         setRootTail([root, tail]);
     }
+
+    //--------------------------------------------------------
+
+    const props: GameProps = {
+        isPlaying, setIsPlaying, rootTail, setRootTail,
+        playerState, setPlayerState, opponentState, setOpponentState,
+        fetchArticle, handlePlayingStatus, handlePlayerState, handleRootTail,
+    };
  
     return (
 
-        <div>
+        <Flex w='100%' justifyContent='center'>
             {!isPlaying ? (
-                <SettingsScreen />
+                <SettingsScreen {...props}/>
             ) : (
-                <GameScreen />
+                <GameScreen {...props}/>
             )}
-        </div>
+        </Flex>
     )
 }
 
-function SettingsScreen () {
-
-    const handleSearchInput = useCallback((debouncedValue: string) => {
-        console.log('Search value changed to: ', debouncedValue);
-    }, [])
-
-    return (
-        <div>
-            <SearchInput 
-                value=''
-                onValChange={handleSearchInput}
-                debounceTime={500}
-                placeHolder='Search...'
-            />
-        </div>
-    );
-}
-
-function GameScreen () {
-
-    return (
-        <div></div>
-    );
-}
 
 export default GameContainer; 

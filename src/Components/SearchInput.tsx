@@ -12,7 +12,7 @@ interface SearchInputProps extends InputProps {
 
 function SearchInput (props: SearchInputProps, {...rest}) {
     const [inputValue, setInputValue] = useState<string>(props.value);
-    const debouncedValue = useDebounce(inputValue,props.debounceTime);
+    const debouncedValue = useDebounce(inputValue, props.debounceTime);
 
     useEffect(() => {
         props.onValChange(debouncedValue);

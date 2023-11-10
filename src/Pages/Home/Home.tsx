@@ -1,42 +1,50 @@
-import {
-    Box, VStack, Button, Flex, Divider,
-    Grid, GridItem, Container, HStack, Heading, 
-    Text, AbsoluteCenter, AspectRatio, Image
-} from '@chakra-ui/react'
-
-import Hero from './Hero';
-import Icon from '@mdi/react';
-import Sponsor from './Sponsor';
-import SponsorData from '../../Data/SponsorData';
+import Steps from '../../Components/Steps';
+import SmallCard from '../../Components/SmallCard';
+import {Box, VStack, Flex, Heading} from '@chakra-ui/react'
+import { HeaderCardData, ExampleCardData } from '../../Data/CardData';
 
 function Home() {
 
     return (
 
-        <VStack w='100%' spacing={10} alignItems='center' >
-            <Hero/>
+        <Flex width='100%' h='auto' justifyContent='center' bg='blue.100'>
 
-            <Box width='100%' position='relative'>
-                <Divider/>  
-
-                <AbsoluteCenter 
-                    display='flex' 
-                    alignItems='center' 
-                    justifyContent='center'
+            <VStack w='90%' mt={5} spacing={10} alignItems='center'>
+                
+                <Heading size='2xl'color='white' alignSelf='flex-start'>
+                    Wiki Racer.
+                </Heading>
+                 
+                <Flex 
+                    w='100%' h='auto' direction={{base:'column', md: 'row'}}
+                    alignItems='center' justifyContent='space-evenly' 
+                    gap={5} 
                 >
-                    <Heading size='lg' noOfLines={1}>
-                        Powered By:
+                    {HeaderCardData.map((card, index) => (
+                        <SmallCard key={index} {...card}/>
+                    ))}
+                </Flex>
+
+                <Box 
+                    width='100%' p={2} 
+                    borderTop='1px' borderTopColor='white'
+                    borderBottom='1px' borderBottomColor='white'
+                >
+                    <Heading size='lg' color='white'>
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni ipsam expedita maxime numquam, vitae iure tempore rem? Iure similique sit optio nihil sunt dolorem, possimus voluptatem harum commodi autem. Veniam!
                     </Heading>
-                </AbsoluteCenter>
-            </Box>
+                </Box>
 
-            <Box width='90%' display='flex' flexDirection='column'>
-                {SponsorData.map((sponsor, index) => (
-                    <Sponsor key={index} {...sponsor}/>
-                ))}
-            </Box>
-
-        </VStack>
+                <Flex 
+                    w='100%' h='auto' direction={["column", "column", "row"]}
+                    alignItems='center' justifyContent='space-between' 
+                    gap={10} 
+                >
+                    <Steps props={ExampleCardData} heading={'Example #1'}/>
+                    <Steps props={ExampleCardData} heading={'Example #2'}/>
+                </Flex>
+            </VStack>
+        </Flex>
     );
 }
 
