@@ -6,10 +6,10 @@ import BtnGroup from "../../Components/BtnGroup";
 import InptGroup from "../../Components/InptGroup";
 import ArticleCard from "../../Components/ArticleCard";
 
-
-
+import Icon from '@mdi/react';
+import { mdiClose, mdiRefresh } from '@mdi/js';
 import { Flex, VStack, HStack, Heading, Button, ButtonGroup, 
-    IconButton, Divider, InputRightElement, Box, Input, InputGroup, Spinner
+    IconButton, Divider, InputRightElement, Box, Input, InputGroup, Spinner, useBreakpointValue, Text
 } from "@chakra-ui/react";
 
 
@@ -49,34 +49,59 @@ function SettingsScreen (props: GameProps) {
 
             <VStack w='90%' mt={5} spacing={10} alignItems='center'>
 
-                <Flex
-                    gap={5}  p={5} w='100%' h='auto' 
-                    direction={{base:'column', md: 'row'}}
-                    alignItems='center' justifyContent='flex-start' 
+                <Flex 
+                    w='100%' gap={5} 
+                    direction={{base: 'column', md: 'row'}}
                     boxShadow='md' borderRadius='lg' 
                 >
-                    <Heading size='2xl'color='white' alignSelf='flex-start'>
-                        Configure
-                    </Heading>
-                    
-                    <Divider orientation='vertical' borderColor='white' />
 
-                    <BtnGroup 
-                        action='Root' 
-                        rootArticle={props.rootArticle} 
-                        tailArticle={props.tailArticle} 
-                        rootTailLoading={props.rootTailLoading} 
-                        handleRootTail={props.handleRootTail}
+                    <VStack 
+                        h='100%' 
+                        w={useBreakpointValue({ base: '100%', md: 'auto' })}
+                        p={2} spacing={5} 
+                        alignSelf={useBreakpointValue({ base: 'center', md: 'flex-start' })}
+                        alignItems='flex-start' 
+                        
+                    >
+                        <Heading size='2xl' color='white'>
+                            Configure
+                        </Heading>
+
+                        <Button size='lg' w='100%'>
+                            Play
+                        </Button>
+                    </VStack>
+
+                    <Divider 
+                        orientation={useBreakpointValue({ base: 'horizontal', md: 'vertical' })} 
+                        borderColor='white' 
                     />
 
-                    <BtnGroup 
-                        action='Tail' 
-                        rootArticle={props.rootArticle} 
-                        tailArticle={props.tailArticle} 
-                        rootTailLoading={props.rootTailLoading} 
-                        handleRootTail={props.handleRootTail}
-                    />
+                    <VStack 
+                        h='100%' 
+                        w={useBreakpointValue({ base: '100%', md: '100%' })} 
+                        p={2} spacing={5} 
+                        alignSelf='flex-start' 
+                        alignItems='flex-start'
+                        justifyContent='space-evenly' 
+                       
+                    >
+                        
+                        
+                        <BtnGroup 
+                            action='Root' 
+                            article={props.rootArticle} 
+                            rootTailLoading={props.rootTailLoading} 
+                            handleRootTail={props.handleRootTail}
+                        />
 
+                        <BtnGroup 
+                            action='Tail' 
+                            article={props.tailArticle} 
+                            rootTailLoading={props.rootTailLoading} 
+                            handleRootTail={props.handleRootTail}
+                        />          
+                    </VStack>
                 </Flex>
 
                 <Flex 
@@ -105,7 +130,7 @@ function SettingsScreen (props: GameProps) {
                             rootTailLoading={props.rootTailLoading} 
                             handleRootTail={props.handleRootTail}
                         />
-                        
+
                     </VStack>
                 </Flex>
 

@@ -24,9 +24,10 @@ function InptGroup (props: InptGroupProps) {
     }
 
     return (
-        <InputGroup size='lg' color='white'>
+        <InputGroup size='lg'>
+
             <Input  
-                ref={inputRef} pr='4.5rem' 
+                ref={inputRef} pr='4.5rem'
                 placeholder={props.placeholder as string}
             />
 

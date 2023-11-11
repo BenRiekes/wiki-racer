@@ -7,40 +7,39 @@ import { Button, ButtonGroup, Heading, IconButton, Spinner, VStack } from '@chak
 
 interface BtnGroupProps {
     action : 'Root' | 'Tail';
-    rootArticle: Article | null;
-    tailArticle: Article | null;
+    article: Article | null;
     rootTailLoading: {[key: string]: boolean};
     handleRootTail: (action: 'Root' | 'Tail', add: boolean) => void;
 }
 
-
 function BtnGroup(props: BtnGroupProps) {
-    const article: Article | null = props.action === 'Root' ? props.rootArticle : props.tailArticle;
-    const isLoading = props.rootTailLoading[props.action]; // Use rootTailLoading from props
+    const isLoading = props.rootTailLoading[props.action]; 
 
-    const truncate = (text: string, length: number): string => {
-        return text.length > length ? text.substring(0, length) + '...' : text;
-    };
-
-    const handler = async (add: boolean) => {
-
+    async function handler (add: boolean) {
         if (isLoading) return;
         props.handleRootTail(props.action, add);
-    }
+    } 
+
 
     return (
-        <VStack spacing={2} alignSelf='flex-start' wrap='wrap'>
+        
+        <VStack w='100%' spacing={3}>
+
             <Heading size='lg' color='white' alignSelf='flex-start'>
                 {props.action === 'Root' ? 'Start' : 'End'}:
             </Heading>
 
-            {article ? (
-                <ButtonGroup size='lg' variant='solid' isAttached>
-                    <Button onClick={() => window.open(article.url, '_blank')}>
-                        {isLoading ? <Spinner /> : truncate(article.title, 8)}
+            {props.article ? (
+
+                <ButtonGroup w='100%' alignItems='center' isAttached>
+
+                    <Button w='100%' size='md' justifyContent='flex-start' isTruncated
+                        onClick={() => window.open(props.article?.url, '_blank')}
+                    >
+                        {isLoading ? <Spinner /> : props.article?.title}
                     </Button>
 
-                    <IconButton 
+                    <IconButton
                         aria-label='Refresh'
                         backgroundColor='green.50'
                         icon={<Icon path={mdiRefresh} size={1}/>}
@@ -48,26 +47,26 @@ function BtnGroup(props: BtnGroupProps) {
                     />
 
                     <IconButton 
-                        aria-label='Remove' 
+                        aria-label='Remove'
                         backgroundColor='red.50'
                         icon={<Icon path={mdiClose} size={1}/>}
                         onClick={() => handler(false)}
                     />
-                </ButtonGroup>
+                </ButtonGroup> 
             ) : (
-                <ButtonGroup size='lg' variant='solid' isAttached>
+                <ButtonGroup w='100%' alignItems='center' isAttached>
 
-                    <Button>
-                        {isLoading ? <Spinner /> : 'None'}
+                    <Button w='100%' size='md' justifyContent='flex-start' isTruncated>
+                        {isLoading ? <Spinner /> : 'Select an article'}
                     </Button>
 
-                    <IconButton 
+                    <IconButton
                         aria-label='Refresh'
                         backgroundColor='green.50'
                         icon={<Icon path={mdiRefresh} size={1}/>}
                         onClick={() => handler(true)}
                     />
-                </ButtonGroup>  
+                </ButtonGroup>
             )}
         </VStack>
     );
