@@ -67,7 +67,7 @@ function SettingsScreen (props: GameProps) {
                             Configure
                         </Heading>
 
-                        <Button size='lg' w='100%'>
+                        <Button size='lg' w='100%' onClick={() => props.handlePlayingStatus()}>
                             Play
                         </Button>
                     </VStack>

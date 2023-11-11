@@ -32,7 +32,7 @@ function InptGroup (props: InptGroupProps) {
             />
 
             <InputRightElement width='4.5rem'>
-                <Button h='1.75rem' size='sm' onClick={handler}>
+                <Button h='1.75rem' size='sm' backgroundColor='green.50' onClick={handler}>
                     <Icon path={mdiCheck} size={1}/>
                 </Button>
             </InputRightElement>

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import * as cheerio from 'cheerio';
 import path from 'path';
 import cors from 'cors';
+import { contains } from 'cheerio/lib/static';
 
 //---------Setup------------------------
 
@@ -25,87 +26,114 @@ interface Article {
     isHref: { [key: string]: boolean }; 
 };
 
+//------------Immutable----------------
+
+const BASE_URL = 'https://en.wikipedia.org/wiki/';
+const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
+
+//------------Helpers----------------
+
+function containsWhiteSpace (str: string): boolean {
+    return /\s/g.test(str);
+}
+
+function replaceWhiteSpace (str: string): string {
+    return str.replace(/\s/g, '_');
+}
+
+function formatURL (title: string): string {
+    return BASE_URL + title.replace(/\s+/g, '_');
+}
+
+//------------Functions----------------
+
+async function fetchArticleContent (url: string) {
+    const response = await axios.get(url);
+    return cheerio.load(response.data);
+}
+
+function processTitleURL ($: cheerio.CheerioAPI) {
+    const title = $('h1:first').text();
+    const url = formatURL(title);
+    return { title, url };
+}
+
+function processParagraphs ($: cheerio.CheerioAPI) {
+    let paragraphTexts: string[] = [];
+    let links: string[] = [];
+    let isHref: { [key: string]: boolean } = {};
+
+    $('.mw-parser-output > p').each((_index, pElement) => {
+
+        let indexText = $(pElement).text().replace(/\n/g, ' ').trim();
+        paragraphTexts.push(indexText);
+
+        $(pElement).find('a[href]').each((_index, element) => {
+            const text = $(element).text().trim();
+            const link = $(element).attr('href') || '';
+
+            //Ignore citations:
+            if (!text.includes('[') && !text.includes(']')) {
+                isHref[text] = true;
+                const absoluteLink = new URL(link, BASE_URL).href;
+                links.push(absoluteLink);
+            }
+        });
+    });
+
+    return { paragraphTexts, links, isHref };
+}
+
 //------------API----------------------
+
 
 app.get('/api/fetch-article', async (req: Request, res: Response) => {
 
-    const requestURL = req.query.url as string;
-    const baseURL = 'https://en.wikipedia.org/wiki/';
-    const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
+    let requestURL = req.query.url as string;
 
     if (typeof requestURL !== 'string') {
         return res.status(400).json({message: `Invalid URL: ${requestURL}`});
-    } 
+    }
 
-    if (requestURL !== RANDOM_URL && !requestURL.startsWith(baseURL, 0)) {
+    if (requestURL !== RANDOM_URL && !requestURL.startsWith(BASE_URL, 0)) {
         return res.status(400).json({message: `Invalid URL: ${requestURL}`});
     }
 
+    if (containsWhiteSpace(requestURL)) {
+        requestURL = replaceWhiteSpace(requestURL);
+    }
+
     try {
+        const $ = await fetchArticleContent(requestURL);
+        const { title, url } = processTitleURL($);
+        const { paragraphTexts, links, isHref } = processParagraphs($);
 
         let article: Article = {
-            title: '', body: '', url: '', 
-            links: [], isHref: {}
+            title: title,
+            body: paragraphTexts.join(' '),
+            url: url,
+            links: links,
+            isHref: isHref
         };
-
-        const response = await axios.get(requestURL);
-        const html = response.data;
-        const $ = cheerio.load(html);
-
-        article.url = requestURL; 
-        article.title = $('h1:first').text(); //goes to the first h1 of the webpage
         
-        //The url will be the random wiki page url 
-        //Upon game start. The random url allows me to get the 
-        //Start and end urls, and I can still use this functon 
-        //For request onwards - might abstract later.
+        return res.status(200).json(article);
 
-        if (requestURL === RANDOM_URL) { //Wiki urls are always the article title
-            article.url = baseURL + article.title.replace(/\s+/g, '_');
-        } 
-
-        let paragraphTexts: string[] = [];
-        
-        //Loop through all of the main content pragraphs
-        //Excluding things like references
-        $('.mw-parser-output > p').each((_index, pElem) => {
-            
-            //Get the text of the paragraph and remove all of the weird chars
-            let indexText = $(pElem).text().replace(/\n/g, ' ').trim()
-            paragraphTexts.push(indexText);
-
-            //Processes links within the paragraph
-            $(pElem).find('a[href]').each((_index, element) => {
-                const text = $(element).text().trim();
-                const link = $(element).attr('href') || '';
-
-                if (!text.includes('[') && !text.includes(']')) { //Excludes citation hrefs
-                    article.isHref[text] = true; //Add to href map
-                    const absoluteLink = new URL(link, baseURL).href; //Format link
-                    article.links.push(absoluteLink) //Push link
-                }
-            });
-        });
-
-        article.body = paragraphTexts.join(' ');
-        return res.status(200).json(article); 
-
-    } catch (error: unknown) {
+    } catch (error) {
 
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
             return res.status(500).json({message: axiosError.message});
         } 
-        
+                
         else if (error instanceof Error) {
             return res.status(500).json({message: error.message});
         } 
-        
+                
         else {
             return res.status(500).json({message: 'An unknown error occured'});
         }
     }
-})
+});
 
 
 app.get('*', (_req, res) => {
