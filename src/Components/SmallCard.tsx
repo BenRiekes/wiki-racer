@@ -10,8 +10,7 @@ export interface CardProps {
 
 function SmallCard (props: CardProps) {
 
-    return (
-        
+    return ( 
         <Card 
             size='sm' boxShadow='xl' flexShrink={1}
             minW={useBreakpointValue({base: '100%', md: 'auto'})}  

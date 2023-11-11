@@ -45,7 +45,6 @@ function GameContainer () {
 
     //---------------------------------------------------------
 
-
     function handlePlayingStatus () {
         setIsPlaying(!isPlaying);
     }

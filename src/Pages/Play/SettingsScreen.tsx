@@ -26,7 +26,7 @@ function SettingsScreen (props: GameProps) {
         async function fetchArticles () {
             
             try {
-                const articlePromises = Array.from({length: 20}, () => props.fetchArticle());
+                const articlePromises = Array.from({length: 10}, () => props.fetchArticle());
                 const articles = await Promise.all(articlePromises);
                 setExploreArticles(articles);
 
@@ -39,8 +39,6 @@ function SettingsScreen (props: GameProps) {
 
         fetchArticles();
     }, []);
-
-
 
     //----------------------------------------
 
@@ -83,11 +81,8 @@ function SettingsScreen (props: GameProps) {
                         p={2} spacing={5} 
                         alignSelf='flex-start' 
                         alignItems='flex-start'
-                        justifyContent='space-evenly' 
-                       
+                        justifyContent='space-evenly'   
                     >
-                        
-                        
                         <BtnGroup 
                             action='Root' 
                             article={props.rootArticle} 
@@ -110,7 +105,6 @@ function SettingsScreen (props: GameProps) {
                     alignItems='center' justifyContent='flex-start' 
                     boxShadow='md' borderRadius='lg'
                 >
-
                     <VStack spacing={5} w='100%' alignSelf='flex-start' wrap='wrap'>
 
                         <Heading size='xl'color='white' alignSelf='flex-start'>
@@ -141,7 +135,6 @@ function SettingsScreen (props: GameProps) {
                     </Heading>
 
                     <Box width='100%' overflowX='scroll'
-
                         css={{ 
                             '&::-webkit-scrollbar': {
                                 width: '0.6em',
@@ -156,7 +149,7 @@ function SettingsScreen (props: GameProps) {
                         <HStack spacing={5} paddingY='15px'>
 
                             {isLoading ? (
-                                Array.from({ length: 20 }).map((_, index) => (
+                                Array.from({ length: 10 }).map((_, index) => (
                                     <ArticleCard key={index} isLoading={true} gameProps={props} />
                                 ))
                             ) : (
