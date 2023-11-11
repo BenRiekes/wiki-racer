@@ -2,33 +2,31 @@ import React, { useState, useRef, useEffect } from "react";
 
 import { GameProps } from "./GameContainer";
 import { Article } from "../../Utils/Functions";
+import BtnGroup from "../../Components/BtnGroup";
+import InptGroup from "../../Components/InptGroup";
 import ArticleCard from "../../Components/ArticleCard";
 
-import Icon from "@mdi/react";
-import { mdiClose, mdiRefresh, mdiCheck} from "@mdi/js";
-import { Flex, VStack, HStack, Heading, Button, ButtonGroup, 
-    IconButton, Divider, InputRightElement, Box, Input, InputGroup
-} from "@chakra-ui/react";
 
+
+import { Flex, VStack, HStack, Heading, Button, ButtonGroup, 
+    IconButton, Divider, InputRightElement, Box, Input, InputGroup, Spinner
+} from "@chakra-ui/react";
 
 
 
 function SettingsScreen (props: GameProps) {
 
-    const articlesGenerated = 20;
-    const endRef = useRef<HTMLInputElement | null>(null);
-    const startRef = useRef<HTMLInputElement | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [exploreArticles, setExploreArticles] = useState<Article[]>([]);
-
+    
     useEffect(() => {
-        props.handleRoot(true);
-        props.handleTail(true);
+        props.handleRootTail('Root', true);
+        props.handleRootTail('Tail', true);
 
         async function fetchArticles () {
             
             try {
-                const articlePromises = Array.from({length: articlesGenerated}, () => props.fetchArticle());
+                const articlePromises = Array.from({length: 20}, () => props.fetchArticle());
                 const articles = await Promise.all(articlePromises);
                 setExploreArticles(articles);
 
@@ -42,23 +40,9 @@ function SettingsScreen (props: GameProps) {
         fetchArticles();
     }, []);
 
+
+
     //----------------------------------------
-
-    function truncate (text: string, length: number): string {
-
-        if (text.length < length) {
-            return text;
-        }
-    
-        return text.substring(0, length) + '...';
-    }
-
-    function handleInput(ref: React.RefObject<HTMLInputElement>, handler: (add: boolean, url?: string) => void) {
-        
-        if (ref.current?.value) {
-            handler(true, ref.current.value);
-        }
-    }
 
     return (
         <Flex width='100%' h='auto' justifyContent='center' bg='blue.100'>
@@ -77,56 +61,22 @@ function SettingsScreen (props: GameProps) {
                     
                     <Divider orientation='vertical' borderColor='white' />
 
-                    {props.rootTail?.map((article, index) => (
+                    <BtnGroup 
+                        action='Root' 
+                        rootArticle={props.rootArticle} 
+                        tailArticle={props.tailArticle} 
+                        rootTailLoading={props.rootTailLoading} 
+                        handleRootTail={props.handleRootTail}
+                    />
 
-                        <VStack spacing={2} alignSelf='flex-start' wrap='wrap' key={index}>
+                    <BtnGroup 
+                        action='Tail' 
+                        rootArticle={props.rootArticle} 
+                        tailArticle={props.tailArticle} 
+                        rootTailLoading={props.rootTailLoading} 
+                        handleRootTail={props.handleRootTail}
+                    />
 
-                            <Heading size='lg' color='white' alignSelf='flex-start'>
-                                {index === 0 ? 'Start' : 'End'}:
-                            </Heading>
-
-                            {article ? (
-
-                                <ButtonGroup size='lg' variant='solid' isAttached>
-
-                                    <Button 
-                                        onClick = {() => window.open(article.url, '_blank')}
-                                    >
-                                        
-                                        {truncate(article.title, 8)}  
-                                    </Button>
-
-                                    <IconButton 
-                                        aria-label='Refresh'
-                                        backgroundColor='green.50'
-                                        icon={<Icon path={mdiRefresh} size={1}/>}
-                                        onClick = {() => index === 0 ? props.handleRoot(true) : props.handleTail(true)}
-                                    />
-
-                                    <IconButton 
-                                        aria-label='Remove' 
-                                        backgroundColor='red.50'
-                                        icon={<Icon path={mdiClose} size={1}/>}
-                                        onClick = {() => index === 0 ? props.handleRoot(false) : props.handleTail(false)}
-                                    />
-                                </ButtonGroup> 
-                            ): (
-
-                                <ButtonGroup size='lg' variant='solid' isAttached>
-                                    <Button>
-                                        Not Selected
-                                    </Button>
-
-                                    <IconButton 
-                                        aria-label='Refresh'
-                                        backgroundColor='green.50'
-                                        icon={<Icon path={mdiRefresh} size={1}/>}
-                                        onClick = {() => index === 0 ? props.handleRoot(true) : props.handleTail(true)}
-                                    />
-                                </ButtonGroup>   
-                            )}
-                        </VStack>
-                    ))}
                 </Flex>
 
                 <Flex 
@@ -142,35 +92,20 @@ function SettingsScreen (props: GameProps) {
                             Custom 
                         </Heading>
 
-                        <InputGroup size='lg' color='white'>
+                        <InptGroup 
+                            action='Root' 
+                            placeholder='Start Link:' 
+                            rootTailLoading={props.rootTailLoading} 
+                            handleRootTail={props.handleRootTail}
+                        />
 
-                            <Input  
-                                ref={startRef} 
-                                pr='4.5rem' 
-                                placeholder='Start Link:'
-                            />
-
-                            <InputRightElement width='4.5rem'>
-                                <Button h='1.75rem' size='sm' onClick={() => handleInput(startRef, props.handleRoot)}>
-                                    <Icon path={mdiCheck} size={1}/>
-                                </Button>
-                            </InputRightElement>
-                        </InputGroup>
-
-                        <InputGroup size='lg' color='white'>
-
-                            <Input 
-                                ref={endRef} 
-                                pr='4.5rem' 
-                                placeholder='End Link:'
-                            />
-
-                            <InputRightElement width='4.5rem'>
-                                <Button h='1.75rem' size='sm' onClick={() => handleInput(endRef, props.handleTail)}>
-                                    <Icon path={mdiCheck} size={1}/>
-                                </Button>
-                            </InputRightElement>
-                        </InputGroup>
+                        <InptGroup 
+                            action='Tail' 
+                            placeholder='End Link:'  
+                            rootTailLoading={props.rootTailLoading} 
+                            handleRootTail={props.handleRootTail}
+                        />
+                        
                     </VStack>
                 </Flex>
 
@@ -196,7 +131,7 @@ function SettingsScreen (props: GameProps) {
                         <HStack spacing={5} paddingY='15px'>
 
                             {isLoading ? (
-                                Array.from({ length: articlesGenerated }).map((_, index) => (
+                                Array.from({ length: 20 }).map((_, index) => (
                                     <ArticleCard key={index} isLoading={true} gameProps={props} />
                                 ))
                             ) : (

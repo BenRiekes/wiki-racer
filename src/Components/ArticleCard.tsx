@@ -67,14 +67,12 @@ function ArticleCard ({article, isLoading, gameProps}: ArticleCardProps ) {
 
             {!isLoading && article && (
                 <>
-                    
-
                     <CardFooter py={2}>
                         <HStack w='100%' spacing={2}>
-                            <Button bg='green.50' onClick={() => gameProps.handleRoot(true, article.url)}>
+                            <Button bg='green.50' onClick={() => gameProps.handleRootTail('Root', true, article.url)}>
                                 Start
                             </Button>
-                            <Button bg='green.50' onClick={() => gameProps.handleTail(true, article.url)}>
+                            <Button bg='green.50' onClick={() => gameProps.handleRootTail('Tail', true, article.url)}>
                                 End
                             </Button>
                         </HStack>

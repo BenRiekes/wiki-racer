@@ -16,17 +16,16 @@ export interface GameProps {
     isPlaying: boolean;
     playerState: PlayerState | null;
     opponentState: PlayerState | null;
-    rootTail: [Article | null, Article | null] | null;
+    rootArticle: Article | null;
+    tailArticle: Article | null;
+    rootTailLoading: {[key: string]: boolean};
 
     setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
     setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
     setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
-    setRootTail: React.Dispatch<React.SetStateAction<[Article | null, Article | null] | null>>;
     
     handlePlayingStatus: () => void;
-    
-    handleRoot: (add: boolean, url?: string) => void;
-    handleTail: (add: boolean, url?: string) => void;
+    handleRootTail: (action: 'Root' | 'Tail', add: boolean, url?: string) => void;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
     fetchArticle: (url?: string) => Promise<Article>;
 }
@@ -39,7 +38,10 @@ function GameContainer () {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [playerState, setPlayerState] = useState<PlayerState |  null>(null);
     const [opponentState, setOpponentState] = useState<PlayerState | null>(null);
-    const [rootTail, setRootTail] = useState<[Article | null, Article | null] | null>(null);
+    
+    const [rootArticle, setRootArticle] = useState<Article | null>(null);
+    const [tailArticle, setTailArticle] = useState<Article | null>(null);
+    const [rootTailLoading, setRootTailLoading] = useState<{[key: string]: boolean}>({'Root': true, 'Tail': true});
 
     //---------------------------------------------------------
 
@@ -69,48 +71,46 @@ function GameContainer () {
         }   
     }
 
-    //Lets user select the start and end articles via randomization
+    async function handleRootTail(action: 'Root' | 'Tail', add: boolean, url?: string) {
 
-
-
-
-    async function handleRoot (add: boolean, url?: string) {
-
-        if (!add) {
-            setRootTail([null, rootTail ? rootTail[1] : null]);
-            return;
-        }
-
-        if (url && (!url.startsWith('https://en.wikipedia.org/wiki/') || url === rootTail?.[1]?.url)) {
-            return;
-        }
-
-        const locArticle = url ? await fetchArticle(url) : await fetchArticle();
-        setRootTail([locArticle, rootTail ? rootTail[1] : null]);
-    }
-
-    async function handleTail (add: boolean, url?: string) {
-
-        if (!add) {
-            setRootTail([rootTail ? rootTail[0] : null, null]);
-            return;
-        }
-
-        if (url && (!url.startsWith('https://en.wikipedia.org/wiki/') || url === rootTail?.[0]?.url)) {
-            return;
-        }
-
-        const locArticle = url ? await fetchArticle(url) : await fetchArticle();
-        setRootTail([rootTail ? rootTail[0] : null, locArticle]);
-    }
+        setRootTailLoading(prev => ({ ...prev, [action]: true }));
     
+        if (!add) {
+            action === 'Root' ? setRootArticle(null) : setTailArticle(null);
+            setRootTailLoading(prev => ({ ...prev, [action]: false }));
+            return;
+        }
     
-    //--------------------------------------------------------
+        const article: Article = await fetchArticle(url);
+        console.log(article);
+    
+        if (action === 'Root') {
+
+            if (article.url === tailArticle?.url || article.url === rootArticle?.url) {
+                setRootTailLoading(prev => ({ ...prev, [action]: false }));
+                return;
+            }
+
+            setRootArticle(article);
+
+        } else if (action === 'Tail') {
+
+            if (article.url === rootArticle?.url || article.url === tailArticle?.url) {
+                setRootTailLoading(prev => ({ ...prev, [action]: false }));
+                return;
+            }
+
+            setTailArticle(article);
+        }
+    
+        // Stop loading after setting the article
+        setRootTailLoading(prev => ({ ...prev, [action]: false }));
+    }
 
     const props: GameProps = {
-        isPlaying, setIsPlaying, rootTail, setRootTail,
+        isPlaying, setIsPlaying, rootArticle, tailArticle, handleRootTail, rootTailLoading,
         playerState, setPlayerState, opponentState, setOpponentState,
-        fetchArticle, handlePlayingStatus, handlePlayerState, handleRoot, handleTail
+        fetchArticle, handlePlayingStatus, handlePlayerState, 
     };
  
     return (
