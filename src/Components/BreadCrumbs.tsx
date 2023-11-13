@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from "react";
 import { PlayerState, Article } from "../Utils/Functions";
 
 import Icon from "@mdi/react";
-import { mdiArrowRightThin } from '@mdi/js';
-import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink} from "@chakra-ui/react";
+import { mdiArrowRightThin, mdiHistory } from '@mdi/js';
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Divider, HStack, Text} from "@chakra-ui/react";
 
 interface BreadCrumbProps {
     playerState: PlayerState | null;
-    setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
+    playerStateHistoryRemoveAfterIndex: (index: number, player: 'Player' | 'Opp') => void;
 }
 
 function BreadCrumbs (props: BreadCrumbProps) {
@@ -33,17 +33,7 @@ function BreadCrumbs (props: BreadCrumbProps) {
             return;
         } 
 
-        if (index !== articles.length - 1) {
-
-            for (let i = articles.length - 1; i > index; i--) {
-                articles.pop();
-            }
-
-            props.setPlayerState((prevState) => {
-                return {...prevState, currentArticle: articles[index], history: [...articles]}
-            })
-        }
-
+        props.playerStateHistoryRemoveAfterIndex(index, 'Player');
     }
 
     const backgroundColor = (index: number) => {
@@ -69,23 +59,35 @@ function BreadCrumbs (props: BreadCrumbProps) {
                     backgroundColor: '#CBD5E0',
                 },
             }}
+            
         >
-            <Breadcrumb spacing='8px' separator={<Icon path={mdiArrowRightThin} size={1} /> }>
+
+            <Breadcrumb spacing='8px'  separator={<Icon path={mdiArrowRightThin} size={1} /> }>
 
                 {props.playerState?.history?.map((article, index) => (
 
-                    <BreadcrumbItem key={index} p={2} mr={2}
+                    <BreadcrumbItem 
+                        key={index} 
+                        p={2} mr={2} w='auto'
                         backgroundColor={backgroundColor(index)} 
-                        color='black' fontSize='md' fontWeight='bold' borderRadius='md'
+                        color='black' fontSize='md' fontWeight='bold'
+                        whiteSpace='nowrap' borderRadius='md' cursor='pointer'
+
+                        onClick={() => handleClick(index, article)}
                     >
-                        <BreadcrumbLink  whiteSpace='nowrap' onClick={() => handleClick(index, article)}>
+                        <BreadcrumbLink  textDecoration='none' whiteSpace='nowrap' 
+                          
+                            onClick={() => handleClick(index, article)}
+                        >
                             {article.title}
                         </BreadcrumbLink>
 
                     </BreadcrumbItem>    
                 ))}    
-     
+
             </Breadcrumb>
+
+           
         </Box>
     );
 }

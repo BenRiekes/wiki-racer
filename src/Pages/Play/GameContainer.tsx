@@ -27,6 +27,7 @@ export interface GameProps {
     setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
     handleRootTail: (action: 'Root' | 'Tail', add: boolean, value: string) => void;
+    playerStateHistoryRemoveAfterIndex: (index: number, player: 'Player' | 'Opp') => void;
 }
 
 
@@ -68,6 +69,9 @@ function GameContainer () {
         setIsPlaying(value);
     }
 
+    //--------------------------------------------------------
+
+
     function handlePlayerState (article: Article, player: 'Player' | 'Opp') {
 
         let history = [];
@@ -87,6 +91,24 @@ function GameContainer () {
             });
         }   
     }
+
+    function playerStateHistoryRemoveAfterIndex (index: number, player: 'Player' | 'Opp') {
+
+        let history: Article[] = player === 'Player' ?
+            (playerState?.history as Article[]) : (opponentState?.history as Article[])
+        ;
+
+        for (let i = history.length - 1; i > index; i--) {
+            history.pop();
+        }
+
+        player === 'Player' ?
+            setPlayerState((prevState) => ({...prevState, currentArticle: history[index], history: [...history]})) :
+            setOpponentState((prevState) => ({...prevState, currentArticle: history[index], history: [...history]}))
+        ;
+    }
+
+    //--------------------------------------------------------
 
     async function handleRootTail(action: 'Root' | 'Tail', add: boolean, value: string) {
 
@@ -126,8 +148,12 @@ function GameContainer () {
     const props = {
         isPlaying, playerState, opponentState, 
         rootArticle, tailArticle, rootTailLoading,
-        setPlayerState, setOpponentState,
-        handlePlayingStatus, handlePlayerState, handleRootTail
+        setPlayerState, 
+        setOpponentState,
+        handlePlayingStatus, 
+        handlePlayerState, 
+        handleRootTail,
+        playerStateHistoryRemoveAfterIndex
     }
  
     return (

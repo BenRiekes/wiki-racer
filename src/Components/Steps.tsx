@@ -39,7 +39,7 @@ function Steps ({props, heading}: {props: CardProps[], heading: string}) {
             gap='5' mb={2}
         >
 
-            <Heading size='xl' color='white' alignSelf='flex-start'>
+            <Heading size='xl' color='white' alignSelf='flex-start' mb={2}>
                 {heading}
             </Heading>
 
