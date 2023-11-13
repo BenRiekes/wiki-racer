@@ -22,7 +22,9 @@ function ArticleDisplay (props: ArticleDisplayProps) {
         const width1= isRowLayout? '15vw' : '100%';
         const width2= isRowLayout? '20vw' : '90%';
         const width3= isRowLayout? undefined : '100%'
+        const defaultIndex= isRowLayout? 0 : 1;
         const LinkSegment: LinkSegment[] = currentArticle?.links as LinkSegment[];
+
 
         const formatWikiTitleFromURL = (url: string) => {
             const lastSlashIndex = url.lastIndexOf('/');
@@ -32,7 +34,7 @@ function ArticleDisplay (props: ArticleDisplayProps) {
         }
 
         return (
-            <Accordion allowToggle width={width3} >
+            <Accordion allowToggle defaultIndex={defaultIndex} width={width3} >
                 <AccordionItem backgroundColor='gray.200'>
 
                     <h2>
@@ -67,10 +69,11 @@ function ArticleDisplay (props: ArticleDisplayProps) {
                                     borderRadius='md' 
                                     backgroundColor='red.100' 
                                     justifyContent='flex-start' 
-                                    color='white' isTruncated
+                                    color='white' 
+                                    _hover={{ backgroundColor: 'blue.100' }}
                                     onClick={() => handleLinkClick(link.url)}
                                 >   
-                                    {formatWikiTitleFromURL(link.url)}    
+                                    <Text isTruncated>{formatWikiTitleFromURL(link.url)}</Text>
                                 </Button>
                             ))}
                         </VStack>
