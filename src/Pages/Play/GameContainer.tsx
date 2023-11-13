@@ -23,6 +23,8 @@ export interface GameProps {
     rootTailLoading: {[key: string]: boolean};
 
     handlePlayingStatus: (value: boolean) => void;
+    setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
+    setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
     handleRootTail: (action: 'Root' | 'Tail', add: boolean, value: string) => void;
 }
@@ -124,6 +126,7 @@ function GameContainer () {
     const props = {
         isPlaying, playerState, opponentState, 
         rootArticle, tailArticle, rootTailLoading,
+        setPlayerState, setOpponentState,
         handlePlayingStatus, handlePlayerState, handleRootTail
     }
  

@@ -35,17 +35,6 @@ type Article = {
     links?: LinkSegment[];
 }   
 
-
-//-------------------------------------
-
-// interface Article {
-//     title: string;
-//     body: string;
-//     url: string;
-//     links: string[];
-//     isHref: { [key: string]: boolean }; 
-// };
-
 //------------Immutable----------------
 
 const BASE_URL = 'https://en.wikipedia.org/wiki/';
