@@ -1,34 +1,43 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
-export interface Article {
-    title: string;
-    body: string;
+export type Paragraph = 
+    Array<string | LinkSegment>
+;
+
+export type LinkSegment = {
+    text: string;
     url: string;
-    links: string[];
-    isHref: { [key: string]: boolean };
-};
+}
 
-export interface PlayerState {
+export type Article = {
+    title: string;
+    url: string;
+    body?: Paragraph[];
+    links?: LinkSegment[];
+}
+
+export type PlayerState = {
     currentArticle: Article;
     history: Article[];
 };
 
-export async function fetchArticle (url?: string): Promise<Article> {
+export const BASE_URL = 'https://en.wikipedia.org/wiki/';
+export const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
 
-    if (typeof url === 'undefined') {
-        url = 'https://en.wikipedia.org/wiki/Special:Random';
-    }
+export async function fetchArticle (type: 'Name' | 'URL', value: string, needsProcessing: boolean): Promise<Article> {
 
     try {
-        const res = await axios.get<Article>('/api/fetch-article', {
-            params: { url: url }
+        const res = await axios.get<Article>('api/fetch-article', {
+            params: { type: type, value: value, needsProcessing: needsProcessing }
         });
 
-        const resArticle: Article = res.data;
-        return resArticle;
+        const article: Article = res.data;
+        return article;
 
-    } catch (error) {
-        console.log('Error occurred: ' + error);
-        throw new Error ('Failed to fetch article');
+    } catch (error: unknown) {
+
+        throw new Error('Failed to fetch article');
     }
-} 
+}
+
+

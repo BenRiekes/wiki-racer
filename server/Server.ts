@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 import path from 'path';
 import cors from 'cors';
 import { contains } from 'cheerio/lib/static';
+import { Link } from 'react-router-dom';
 
 //---------Setup------------------------
 
@@ -18,105 +19,154 @@ app.use(express.static(path.join(__dirname, '../build')));
 
 //-----------Types---------------------
 
-interface Article {
-    title: string;
-    body: string;
+type Paragraph = 
+    Array<string | LinkSegment>
+;
+
+type LinkSegment = {
+    text: string;
     url: string;
-    links: string[];
-    isHref: { [key: string]: boolean }; 
-};
+}
+
+type Article = {
+    title: string;
+    url: string;
+    body?: Paragraph[];
+    links?: LinkSegment[];
+}   
+
+
+//-------------------------------------
+
+// interface Article {
+//     title: string;
+//     body: string;
+//     url: string;
+//     links: string[];
+//     isHref: { [key: string]: boolean }; 
+// };
 
 //------------Immutable----------------
 
 const BASE_URL = 'https://en.wikipedia.org/wiki/';
 const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
 
-//------------Helpers----------------
 
-function containsWhiteSpace (str: string): boolean {
-    return /\s/g.test(str);
-}
-
-function replaceWhiteSpace (str: string): string {
-    return str.replace(/\s/g, '_');
-}
-
-function formatURL (title: string): string {
-    return BASE_URL + title.replace(/\s+/g, '_');
-}
-
-//------------Functions----------------
-
-async function fetchArticleContent (url: string) {
-    const response = await axios.get(url);
-    return cheerio.load(response.data);
-}
-
-function processTitleURL ($: cheerio.CheerioAPI) {
-    const title = $('h1:first').text();
-    const url = formatURL(title);
-    return { title, url };
-}
-
-function processParagraphs ($: cheerio.CheerioAPI) {
-    let paragraphTexts: string[] = [];
-    let links: string[] = [];
-    let isHref: { [key: string]: boolean } = {};
+function processParagraphs ($: cheerio.CheerioAPI): {body: Paragraph[], links: LinkSegment[]} {
+    let links: LinkSegment[] = [];
+    let paragraphs: Paragraph[] = [];
 
     $('.mw-parser-output > p').each((_index, pElement) => {
+        let paragraph: Paragraph = [];
+        let currentText = '';
 
-        let indexText = $(pElement).text().replace(/\n/g, ' ').trim();
-        paragraphTexts.push(indexText);
+        $(pElement).contents().each((_idx, element) => {
+           
+            if (element.type === 'tag') {
+                const tagName = element.tagName.toLowerCase();
 
-        $(pElement).find('a[href]').each((_index, element) => {
-            const text = $(element).text().trim();
-            const link = $(element).attr('href') || '';
+                if (tagName === 'a') {
+                    const text = $(element).text();
+                    const href = $(element).attr('href');
 
-            //Ignore citations:
-            if (!text.includes('[') && !text.includes(']')) {
-                isHref[text] = true;
-                const absoluteLink = new URL(link, BASE_URL).href;
-                links.push(absoluteLink);
+                    if (currentText.trim()) {
+                        paragraph.push(currentText);
+                        currentText = '';
+                    }
+
+                    if (href && !href.includes('#cite_note')) {
+                        const url = new URL(href, BASE_URL).href;
+                        paragraph.push({ text, url });
+                        links.push({ text, url });
+                    }
+
+                } else {
+                    currentText += $(element).text();
+                }
+            } else if (element.type === 'text') {
+                currentText += $(element).text();
             }
         });
+
+        if (currentText.trim()) {
+            paragraph.push(currentText);
+        }
+
+        if (paragraph.length > 0) {
+            paragraphs.push(paragraph);
+        }
     });
 
-    return { paragraphTexts, links, isHref };
+    return {body: paragraphs, links: links};
 }
 
 //------------API----------------------
 
-
 app.get('/api/fetch-article', async (req: Request, res: Response) => {
+    const value = req.query.value as string;
+    const type = req.query.type as | 'Name' | 'URL' | undefined;
+    const needsProcessing = req.query.needsProcessing === 'true';
 
-    let requestURL = req.query.url as string;
-
-    if (typeof requestURL !== 'string') {
-        return res.status(400).json({message: `Invalid URL: ${requestURL}`});
+    if (typeof value !== 'string') {
+        return res.status(400).json({message: `Invalid value: ${value}`});
     }
 
-    if (requestURL !== RANDOM_URL && !requestURL.startsWith(BASE_URL, 0)) {
-        return res.status(400).json({message: `Invalid URL: ${requestURL}`});
+    if (type === 'URL' && (value !== RANDOM_URL && !value.startsWith(BASE_URL, 0))) {
+        return res.status(400).json({message: `Invalid URL: ${value}`});
     }
 
-    if (containsWhiteSpace(requestURL)) {
-        requestURL = replaceWhiteSpace(requestURL);
+    if (type === undefined) {
+        return res.status(400).json({message: 'Value cannot be undefined'});
     }
+
+    //----------------------------------------
+
+    async function fetchCheerio (url: string) {
+        const response = await axios.get(url);
+        return cheerio.load(response.data);
+    }
+
+    function formatToWikiURL (name: string): string {
+
+        if (!name) {
+            throw new Error('Name is undefined');
+        }
+
+        const nameValue: string = value.charAt(0).toUpperCase() + value.slice(1);
+        const nameValueWords: string[] = nameValue.split(' ');
+        
+        const nameValueCapitalizedWords: string[] = nameValueWords.map((word => {
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }));
+
+        const nameValueJoined: string = nameValueCapitalizedWords.join('_');
+        return `${BASE_URL}${nameValueJoined}`;
+    }
+
+   
 
     try {
-        const $ = await fetchArticleContent(requestURL);
-        const { title, url } = processTitleURL($);
-        const { paragraphTexts, links, isHref } = processParagraphs($);
+        const cheerioRequestURL: string = type === 'Name' ? formatToWikiURL(value) : value;
+        const $: cheerio.CheerioAPI = await fetchCheerio(cheerioRequestURL);
 
-        let article: Article = {
-            title: title,
-            body: paragraphTexts.join(' '),
-            url: url,
-            links: links,
-            isHref: isHref
-        };
-        
-        return res.status(200).json(article);
+        let article: Article;
+        const title = $('h1:first').text();
+        const url = `${BASE_URL}${$('h1:first').text().replace(/\s+/g, '_')}`;
+
+        if (!needsProcessing) {
+            article = { title: title, url: url}
+            return res.status(200).json(article);
+
+        } else {
+            const {body, links} = processParagraphs($);
+
+            article = {
+                title: title, url: url,
+                body: body, links: links
+            }
+
+            return res.status(200).json(article);
+        }
 
     } catch (error) {
 
@@ -132,7 +182,7 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
         else {
             return res.status(500).json({message: 'An unknown error occured'});
         }
-    }
+    }  
 });
 
 

@@ -5,29 +5,26 @@ import Icon from '@mdi/react';
 import GameScreen from './GameScreen';
 import SettingsScreen from './SettingsScreen';
 import SearchInput from '../../Components/SearchInput';
-import { Article, PlayerState, fetchArticle } from '../../Utils/Functions'; 
+import { Paragraph, LinkSegment, Article, PlayerState, fetchArticle} from '../../Utils/Functions'; 
 
 import { mdiRefresh } from '@mdi/js';
 import { Button, Box, HStack, Heading, VStack, Flex} from '@chakra-ui/react';
 
 //----------------------------
 
+
 export interface GameProps {
     isPlaying: boolean;
     playerState: PlayerState | null;
     opponentState: PlayerState | null;
+
     rootArticle: Article | null;
     tailArticle: Article | null;
     rootTailLoading: {[key: string]: boolean};
 
-    setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-    setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
-    setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
-    
-    handlePlayingStatus: () => void;
-    handleRootTail: (action: 'Root' | 'Tail', add: boolean, url?: string) => void;
+    handlePlayingStatus: (value: boolean) => void;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
-    fetchArticle: (url?: string) => Promise<Article>;
+    handleRootTail: (action: 'Root' | 'Tail', add: boolean, value: string) => void;
 }
 
 
@@ -45,11 +42,30 @@ function GameContainer () {
 
     //---------------------------------------------------------
 
-    function handlePlayingStatus () {
-        setIsPlaying(!isPlaying);
+    async function handlePlayingStatus (value: boolean) {
+
+        if (value) {
+
+            if (!rootArticle || !tailArticle) {
+                return;
+            }
+
+            //Request the body and links for root and tial
+            const updatedRoot = await fetchArticle('URL', rootArticle.url, true);
+            const updatedTail = await fetchArticle('URL', tailArticle.url, true);
+
+            setRootArticle(updatedRoot); 
+            setTailArticle(updatedTail);
+            handlePlayerState(updatedRoot, 'Player');
+            handlePlayerState(updatedRoot, 'Opp');
+        } else {
+            setPlayerState(null);
+            setOpponentState(null);
+        }
+
+        setIsPlaying(value);
     }
 
-    //Checks for win on each turn and sets state of new articles clicked
     function handlePlayerState (article: Article, player: 'Player' | 'Opp') {
 
         let history = [];
@@ -70,7 +86,7 @@ function GameContainer () {
         }   
     }
 
-    async function handleRootTail(action: 'Root' | 'Tail', add: boolean, url?: string) {
+    async function handleRootTail(action: 'Root' | 'Tail', add: boolean, value: string) {
 
         setRootTailLoading(prev => ({ ...prev, [action]: true }));
     
@@ -80,8 +96,7 @@ function GameContainer () {
             return;
         }
     
-        const article: Article = await fetchArticle(url);
-        console.log(article);
+        const article: Article = await fetchArticle('URL', value, false);
     
         if (action === 'Root') {
 
@@ -106,11 +121,11 @@ function GameContainer () {
         setRootTailLoading(prev => ({ ...prev, [action]: false }));
     }
 
-    const props: GameProps = {
-        isPlaying, setIsPlaying, rootArticle, tailArticle, handleRootTail, rootTailLoading,
-        playerState, setPlayerState, opponentState, setOpponentState,
-        fetchArticle, handlePlayingStatus, handlePlayerState, 
-    };
+    const props = {
+        isPlaying, playerState, opponentState, 
+        rootArticle, tailArticle, rootTailLoading,
+        handlePlayingStatus, handlePlayerState, handleRootTail
+    }
  
     return (
 

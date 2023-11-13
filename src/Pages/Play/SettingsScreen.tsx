@@ -1,16 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 
 import { GameProps } from "./GameContainer";
-import { Article } from "../../Utils/Functions";
+import { Paragraph, LinkSegment, Article, PlayerState, RANDOM_URL, fetchArticle} from '../../Utils/Functions'; 
+
 import BtnGroup from "../../Components/BtnGroup";
 import InptGroup from "../../Components/InptGroup";
 import ArticleCard from "../../Components/ArticleCard";
-
-import Icon from '@mdi/react';
-import { mdiClose, mdiRefresh } from '@mdi/js';
-import { Flex, VStack, HStack, Heading, Button, ButtonGroup, 
-    IconButton, Divider, InputRightElement, Box, Input, InputGroup, Spinner, useBreakpointValue, Text
-} from "@chakra-ui/react";
+import { Flex, VStack, HStack, Heading, Button, Divider,  Box, useBreakpointValue} from "@chakra-ui/react";
 
 
 
@@ -20,24 +16,25 @@ function SettingsScreen (props: GameProps) {
     const [exploreArticles, setExploreArticles] = useState<Article[]>([]);
     
     useEffect(() => {
-        props.handleRootTail('Root', true);
-        props.handleRootTail('Tail', true);
+        props.handleRootTail('Root', true, RANDOM_URL);
+        props.handleRootTail('Tail', true, RANDOM_URL);
 
-        async function fetchArticles () {
-            
+        async function fetchExploreArticles () {
+
             try {
-                const articlePromises = Array.from({length: 10}, () => props.fetchArticle());
+                const articlePromises = Array.from({length: 10}, () => fetchArticle(
+                    'URL', RANDOM_URL, false
+                ));
+                
                 const articles = await Promise.all(articlePromises);
                 setExploreArticles(articles);
-
+                setIsLoading(false);
             } catch (error) {
                 console.error('Failed to fetch articles: ', error);
-            } finally {
-               setIsLoading(false);
-            } 
+            }  
         }
 
-        fetchArticles();
+        fetchExploreArticles();
     }, []);
 
     //----------------------------------------
@@ -65,7 +62,7 @@ function SettingsScreen (props: GameProps) {
                             Configure
                         </Heading>
 
-                        <Button size='lg' w='100%' onClick={() => props.handlePlayingStatus()}>
+                        <Button size='lg' w='100%' onClick={() => props.handlePlayingStatus(true)}>
                             Play
                         </Button>
                     </VStack>
@@ -150,11 +147,11 @@ function SettingsScreen (props: GameProps) {
 
                             {isLoading ? (
                                 Array.from({ length: 10 }).map((_, index) => (
-                                    <ArticleCard key={index} isLoading={true} gameProps={props} />
+                                    <ArticleCard key={index} article={null} isLoading={true} handleRootTail={props.handleRootTail}  />
                                 ))
                             ) : (
                                 exploreArticles.map((article, index) => (
-                                    <ArticleCard key={index} article={article} isLoading={false} gameProps={props} />
+                                    <ArticleCard key={index} article={article} isLoading={false} handleRootTail={props.handleRootTail} />
                                 ))
                             )}
                         </HStack>

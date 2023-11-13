@@ -1,4 +1,4 @@
-import { Article } from '../Utils/Functions';
+import { Article, RANDOM_URL } from '../Utils/Functions';
 import useDelayedLoading from '../Hooks/useDelayedLoading';
 
 import Icon from '@mdi/react';
@@ -9,7 +9,7 @@ interface BtnGroupProps {
     action : 'Root' | 'Tail';
     article: Article | null;
     rootTailLoading: {[key: string]: boolean};
-    handleRootTail: (action: 'Root' | 'Tail', add: boolean) => void;
+    handleRootTail: (action: 'Root' | 'Tail', add: boolean, value: string) => void;
 }
 
 function BtnGroup(props: BtnGroupProps) {
@@ -17,9 +17,11 @@ function BtnGroup(props: BtnGroupProps) {
 
     async function handler (add: boolean) {
         if (isLoading) return;
-        props.handleRootTail(props.action, add);
-    } 
 
+        if (props.article) {
+            props.handleRootTail(props.action, add, RANDOM_URL);
+        }
+    } 
 
     return (
         
@@ -29,14 +31,14 @@ function BtnGroup(props: BtnGroupProps) {
                 {props.action === 'Root' ? 'Start' : 'End'}:
             </Heading>
 
-            {props.article ? (
+            {props.article !== null ? (
 
                 <ButtonGroup w='100%' alignItems='center' isAttached>
 
                     <Button w='100%' size='md' justifyContent='flex-start' isTruncated
                         onClick={() => window.open(props.article?.url, '_blank')}
                     >
-                        {isLoading ? <Spinner /> : props.article?.title}
+                        {isLoading ? <Spinner /> : props.article.title}
                     </Button>
 
                     <IconButton

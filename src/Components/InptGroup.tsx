@@ -8,7 +8,7 @@ interface InptGroupProps {
     action : 'Root' | 'Tail';
     placeholder: string;
     rootTailLoading: {[key: string]: boolean};
-    handleRootTail: (action: 'Root' | 'Tail', add: boolean, url?: string) => void;
+    handleRootTail: (action: 'Root' | 'Tail', add: boolean, url: string) => void;
 }
 
 
