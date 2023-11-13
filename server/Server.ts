@@ -143,7 +143,7 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
         const url = `${BASE_URL}${$('h1:first').text().replace(/\s+/g, '_')}`;
 
         if (!needsProcessing) {
-            article = { title: title, url: url}
+            article = { title: title, url: url};
             return res.status(200).json(article);
 
         } else {

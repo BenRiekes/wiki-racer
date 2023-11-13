@@ -5,10 +5,11 @@ import Icon from '@mdi/react';
 import GameScreen from './GameScreen';
 import SettingsScreen from './SettingsScreen';
 import SearchInput from '../../Components/SearchInput';
-import { Paragraph, LinkSegment, Article, PlayerState, fetchArticle} from '../../Utils/Functions'; 
+import { Paragraph, LinkSegment, Article, PlayerState, fetchArticle, RANDOM_URL} from '../../Utils/Functions'; 
 
 import { mdiRefresh } from '@mdi/js';
 import { Button, Box, HStack, Heading, VStack, Flex} from '@chakra-ui/react';
+import { root } from 'cheerio/lib/static';
 
 //----------------------------
 
@@ -54,13 +55,18 @@ function GameContainer () {
             }
 
             //Request the body and links for root and tial
-            const updatedRoot = await fetchArticle('URL', rootArticle.url, true);
-            const updatedTail = await fetchArticle('URL', tailArticle.url, true);
+            try {
+                const updatedRoot: Article = await fetchArticle('URL', rootArticle.url, true);
+                const updatedTail: Article = await fetchArticle('URL', tailArticle.url, true);
 
-            setRootArticle(updatedRoot); 
-            setTailArticle(updatedTail);
-            handlePlayerState(updatedRoot, 'Player');
-            handlePlayerState(updatedRoot, 'Opp');
+                setRootArticle(updatedRoot); 
+                setTailArticle(updatedTail);
+                handlePlayerState(updatedRoot, 'Player');
+                handlePlayerState(updatedRoot, 'Opp');
+            } catch (error) {
+                console.log(error);
+            }
+           
         } else {
             setPlayerState(null);
             setOpponentState(null);
@@ -112,6 +118,10 @@ function GameContainer () {
 
     async function handleRootTail(action: 'Root' | 'Tail', add: boolean, value: string) {
 
+        if (isPlaying) {
+            return;
+        }
+
         setRootTailLoading(prev => ({ ...prev, [action]: true }));
     
         if (!add) {
@@ -141,7 +151,7 @@ function GameContainer () {
             setTailArticle(article);
         }
     
-        // Stop loading after setting the article
+        //Stop loading after setting the article
         setRootTailLoading(prev => ({ ...prev, [action]: false }));
     }
 

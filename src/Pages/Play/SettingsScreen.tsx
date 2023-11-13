@@ -12,13 +12,20 @@ import { Flex, VStack, HStack, Heading, Button, Divider,  Box, useBreakpointValu
 
 function SettingsScreen (props: GameProps) {
 
+    const hasRequestedRootTail = useRef<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [exploreArticles, setExploreArticles] = useState<Article[]>([]);
     
     useEffect(() => {
+
+        if (hasRequestedRootTail.current) {
+            return;
+        }
+
+        hasRequestedRootTail.current = true;
         props.handleRootTail('Root', true, RANDOM_URL);
         props.handleRootTail('Tail', true, RANDOM_URL);
-
+        
         async function fetchExploreArticles () {
 
             try {

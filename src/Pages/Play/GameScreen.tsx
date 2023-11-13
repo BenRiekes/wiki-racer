@@ -18,7 +18,7 @@ function GameScreen (props: GameProps) {
     const isRowLayout = useBreakpointValue({ base: false, md: true });
 
     //----------------------------------------
-
+    
     function StopWatch () {
         const fontSize = isRowLayout? 'xl' : 'lg';
         const width = isRowLayout? 'auto' : '100%';

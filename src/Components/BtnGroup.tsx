@@ -17,10 +17,7 @@ function BtnGroup(props: BtnGroupProps) {
 
     async function handler (add: boolean) {
         if (isLoading) return;
-
-        if (props.article) {
-            props.handleRootTail(props.action, add, RANDOM_URL);
-        }
+        props.handleRootTail(props.action, add, RANDOM_URL);
     } 
 
     return (

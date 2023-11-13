@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { PlayerState, Article } from "../Utils/Functions";
 
 import Icon from "@mdi/react";
-import { mdiArrowRightThin, mdiHistory } from '@mdi/js';
+import { mdiArrowRightThin, mdiHistory, mdiTrashCan } from '@mdi/js';
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Divider, HStack, Text} from "@chakra-ui/react";
 
 interface BreadCrumbProps {
@@ -22,8 +22,6 @@ function BreadCrumbs (props: BreadCrumbProps) {
     //Set the current article to the clicked article
     //Pop all articles after the clicked article from history
     const handleClick = async (index: number, article: Article) => { 
-
-        const articles: Article[] = props.playerState?.history as Article[];
 
         if (props.playerState === null) {
             return;
@@ -75,10 +73,7 @@ function BreadCrumbs (props: BreadCrumbProps) {
 
                         onClick={() => handleClick(index, article)}
                     >
-                        <BreadcrumbLink  textDecoration='none' whiteSpace='nowrap' 
-                          
-                            onClick={() => handleClick(index, article)}
-                        >
+                        <BreadcrumbLink  textDecoration='none' whiteSpace='nowrap'>
                             {article.title}
                         </BreadcrumbLink>
 
