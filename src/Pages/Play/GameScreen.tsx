@@ -5,24 +5,19 @@ import { GameProps } from "./GameContainer";
 import useStopWatch from "../../Hooks/useStopWatch";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import ArticleDisplay from "../../Components/ArticleDisplay";
+import EndModal from "../../Components/EndModal";
 
-import OpenAI from "openai";
-import { Paragraph, LinkSegment, Article, PlayerState, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
+
+import { Article, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
 import { Flex, VStack, HStack, Heading, Text, Badge, Divider, Box, Link, Stack } from "@chakra-ui/layout";
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, useBreakpointValue } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalContent, Button, ModalFooter, ModalHeader, ModalOverlay, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 
 function GameScreen (props: GameProps) {
-
-    const { elapsedTime, handleStart, handleStop, 
-        handleReset, formattedTime } = useStopWatch()
-    ;
-
-    const isRowLayout = useBreakpointValue(
-        { base: false, md: true }
-    );
+    const isRowLayout = useBreakpointValue({ base: false, md: true });
     
-    const threadId = useRef<string | undefined>(undefined);
     const requestInProgress = useRef<boolean>(false);
+    const threadId = useRef<string | undefined>(undefined);
+    
     
     useEffect(() => {
 
@@ -85,14 +80,21 @@ function GameScreen (props: GameProps) {
                 } 
             }
         }
+        
+        if (props.winner === null) {
+            fetchAssistantResponse();
+        }
 
-        fetchAssistantResponse();
+       
+    }, [props.opponentState?.currentArticle]);
 
-    }, [props.opponentState?.currentArticle])
+
 
     //----------------------------------------
     
     function StopWatch () {
+        const { elapsedTime, handleStart, handleStop,  handleReset, formattedTime } = useStopWatch();
+
         const fontSize = isRowLayout? 'xl' : 'lg';
         const width = isRowLayout? 'auto' : '100%';
         const [minutes, seconds, milliseconds] = formattedTime.split(':');
@@ -108,81 +110,90 @@ function GameScreen (props: GameProps) {
         )
     }
 
+
     //----------------------------------------
 
     return (
-        <Flex width='100%' h='auto' minHeight='100vh' justifyContent='center' bg='blue.100'>
 
-            <VStack w='90%' mt={5} spacing={0} alignItems='center' boxShadow='xl' bg='white' borderRadius='sm'>
+        <>
+            <Flex width='100%' h='auto' minHeight='100vh' justifyContent='center' bg='blue.100'>
 
-                <Flex w='100%' gap={3} p={2}
-                    flexDirection={isRowLayout ? 'row' : 'column'}
-                    alignItems='center' justifyContent='flex-start'
-                >
-                    <VStack w='100%' spacing={5} alignItems='flex-start'>
+                <VStack w='90%' mt={5} spacing={0} alignItems='center' boxShadow='xl' bg='white' borderRadius='sm'>
 
-                        {isRowLayout ? (
-                            <HStack  spacing={5} w='100%' alignSelf='flex-start' justifyContent='flex-start'>
-                                
-                                <Heading size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
-                                    Start: {props.rootArticle?.title}
-                                </Heading>
+                    <Flex w='100%' gap={3} p={2}
+                        flexDirection={isRowLayout ? 'row' : 'column'}
+                        alignItems='center' justifyContent='flex-start'
+                    >
+                        <VStack w='100%' spacing={5} alignItems='flex-start'>
 
-                                <Heading size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
-                                    End: {props.tailArticle?.title}
-                                </Heading>
-                            </HStack>
-                        ): (
-                            <VStack w='100%' alignSelf='flex-start' alignItems='flex-start'>
-                                
-                                <Heading w='100%' maxW='100%' size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
-                                    Start: {props.rootArticle?.title}
-                                </Heading>
+                            {isRowLayout ? (
+                                <HStack  spacing={5} w='100%' alignSelf='flex-start' justifyContent='flex-start'>
+                                    
+                                    <Heading size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
+                                        Start: {props.rootArticle?.title}
+                                    </Heading>
 
-                                <Heading w='100%' maxW='100%' size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
-                                    End: {props.tailArticle?.title}
-                                </Heading>
+                                    <Heading size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
+                                        End: {props.tailArticle?.title}
+                                    </Heading>
+                                </HStack>
+                            ): (
+                                <VStack w='100%' alignSelf='flex-start' alignItems='flex-start'>
+                                    
+                                    <Heading w='100%' maxW='100%' size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
+                                        Start: {props.rootArticle?.title}
+                                    </Heading>
 
-                            </VStack>
-                        )}
-                        
-                        {isRowLayout ? (
+                                    <Heading w='100%' maxW='100%' size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
+                                        End: {props.tailArticle?.title}
+                                    </Heading>
 
-                            <HStack spacing={5} w='100%'>
-                                <StopWatch />
+                                </VStack>
+                            )}
+                            
+                            {isRowLayout ? (
 
-                                <BreadCrumbs 
-                                    playerState={props.playerState} 
-                                    playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
-                                />
-                            </HStack>
-                        ) : (
+                                <HStack spacing={5} w='100%'>
+                                    <StopWatch />
 
-                            <VStack spacing={5} w='100%'>
-                                <StopWatch />
+                                    <BreadCrumbs 
+                                        playerState={props.playerState} 
+                                        playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
+                                    />
+                                </HStack>
+                            ) : (
 
-                                <BreadCrumbs 
-                                    playerState={props.playerState} 
-                                    playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
-                                />
-                            </VStack>
-                        )}
- 
-                        <Divider 
-                            orientation='horizontal' 
-                            borderColor='black' 
-                        />
+                                <VStack spacing={5} w='100%'>
+                                    <StopWatch />
 
-                        <ArticleDisplay 
-                            isRowLayout={isRowLayout} 
-                            playerState={props.playerState} 
-                            handlePlayerState={props.handlePlayerState}
-                        />
-                        
-                    </VStack>
-                </Flex>  
-            </VStack>
-        </Flex>
+                                    <BreadCrumbs 
+                                        playerState={props.playerState} 
+                                        playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
+                                    />
+                                </VStack>
+                            )}
+    
+                            <Divider 
+                                orientation='horizontal' 
+                                borderColor='black' 
+                            />
+
+                            <ArticleDisplay 
+                                isRowLayout={isRowLayout} 
+                                playerState={props.playerState} 
+                                handlePlayerState={props.handlePlayerState}
+                            />
+                            
+                        </VStack>
+                    </Flex>  
+                </VStack>
+            </Flex>
+
+            <EndModal
+                winner={props.winner}
+                handlePlayingStatus={props.handlePlayingStatus}
+            />
+        </>
     );
 }
 

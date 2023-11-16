@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback, } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 
 import Icon from '@mdi/react';
@@ -16,6 +17,7 @@ import { root } from 'cheerio/lib/static';
 
 export interface GameProps {
     isPlaying: boolean;
+    winner: 'Player' | 'Opp' | null;
     playerState: PlayerState | null;
     opponentState: PlayerState | null;
 
@@ -24,6 +26,7 @@ export interface GameProps {
     rootTailLoading: {[key: string]: boolean};
 
     handlePlayingStatus: (value: boolean) => void;
+    setWinner: React.Dispatch<React.SetStateAction<'Player' | 'Opp' | null>>;
     setPlayerState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
     setOpponentState: React.Dispatch<React.SetStateAction<PlayerState | null>>;
     handlePlayerState: (article: Article, player: 'Player' | 'Opp') => void;
@@ -36,7 +39,10 @@ export interface GameProps {
 
 function GameContainer () {
 
+    
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [winner, setWinner] = useState<'Player' | 'Opp' | null>(null);
+
     const [playerState, setPlayerState] = useState<PlayerState |  null>(null);
     const [opponentState, setOpponentState] = useState<PlayerState | null>(null);
     
@@ -82,9 +88,12 @@ function GameContainer () {
 
         let history = [];
 
-        if (article.url === tailArticle?.url) {
-            alert(`${player} wins!`);
-            handlePlayingStatus(false);
+        if (winner !== null) {
+            return;
+        }
+
+        if (tailArticle?.url === article.url) {
+            setWinner(player);
             return;
         }
 
@@ -105,6 +114,10 @@ function GameContainer () {
     }
 
     function playerStateHistoryRemoveAfterIndex (index: number, player: 'Player' | 'Opp') {
+
+        if (winner !== null) {
+            return;
+        }
 
         let history: Article[] = player === 'Player' ?
             (playerState?.history as Article[]) : (opponentState?.history as Article[])
@@ -162,9 +175,9 @@ function GameContainer () {
     }
 
     const props = {
-        isPlaying, playerState, opponentState, 
+        isPlaying, winner, playerState, opponentState, 
         rootArticle, tailArticle, rootTailLoading,
-        setPlayerState, 
+        setPlayerState, setWinner,
         setOpponentState,
         handlePlayingStatus, 
         handlePlayerState, 
