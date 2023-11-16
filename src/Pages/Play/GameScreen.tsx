@@ -10,7 +10,7 @@ import EndModal from "../../Components/EndModal";
 
 import { Article, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
 import { Flex, VStack, HStack, Heading, Text, Badge, Divider, Box, Link, Stack } from "@chakra-ui/layout";
-import { Modal, ModalBody, ModalContent, Button, ModalFooter, ModalHeader, ModalOverlay, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 
 function GameScreen (props: GameProps) {
     const isRowLayout = useBreakpointValue({ base: false, md: true });

@@ -33,11 +33,11 @@ function EndModal (props: EndModalProps) {
 
     return (
 
-        <Modal size={'md'} isOpen={isOpen} onClose={onClose} isCentered={true} motionPreset='slideInBottom'>
+        <Modal size={'md'}  isOpen={isOpen} onClose={onClose} isCentered={true} motionPreset='slideInBottom'>
 
             <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(10px) hue-rotate(90deg)'/>
 
-            <ModalContent bg={props.winner === 'Player' ? 'green.200' : 'red.200'}>
+            <ModalContent w='90%' bg={props.winner === 'Player' ? 'green.100' : 'red.100'}>
 
                 <ModalHeader >
                     <Heading size = 'lg' color='white'>
@@ -55,7 +55,7 @@ function EndModal (props: EndModalProps) {
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button w='100%' backgroundColor='blue.100' color='white' _hover={{backgorundColor: 'blue.100'}} onClick={() => handleClick()}>
+                    <Button w='100%' backgroundColor='white' color='black' onClick={() => handleClick()}>
                         Play again!
                     </Button>
                 </ModalFooter>
