@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlayerState, Article } from '../Utils/Functions';
-
-import Icon from '@mdi/react';
-import { mdiCloseThick, mdiTrophy } from '@mdi/js';
-import {Modal, ModalOverlay, ModalContent, ModalHeader, Text, ModalFooter,ModalBody, ModalCloseButton, useDisclosure, VStack, Stepper, useSteps, Step, StepIndicator, StepStatus, StepIcon, StepNumber, Card, CardHeader, Heading, CardBody, Button, HStack} from '@chakra-ui/react'
+import {Modal, ModalOverlay, ModalContent, ModalHeader, Text, ModalFooter,ModalBody, useDisclosure, Heading, Button} from '@chakra-ui/react'
 
 interface EndModalProps {
     winner: 'Player' | 'Opp' | null;

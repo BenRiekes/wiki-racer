@@ -155,19 +155,20 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
         const currentMsg = `The article you are currently on: ${currentArticle.title}.`;
 
         const linksMsg = currentArticle.links && currentArticle.links.length > 0 ? 
-            (`Fowards array: ${getLinks()}`) :
+            (`Fowards array: [${getLinks().join(', ')}]\n`) :
             ('Fowards array: The fowards array is empty, please select an index from the backwards array')
         ;
 
         const historyMsg = articleHistory && articleHistory.length > 1 ? 
-            (`Backwards array: ${getHistory()}`) :
+            (`Backwards array: [${getHistory().join(', ')}]\n`) :
             ('Backwards array: You are on the first article, please select an index from the fowards array')
         ;
 
         const compiledMsg = `
-            ${rootMsg} ${tailMsg} ${currentMsg} ${linksMsg} ${historyMsg}
+            ${rootMsg}\n ${tailMsg} \n${currentMsg} \n${linksMsg}\n ${historyMsg}
         `;
 
+        console.log('--------------------------------------');
         return (compiledMsg);
     }
 
@@ -188,7 +189,7 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
         });
 
         console.log('--------------------------------------');
-        console.log('| Run:\n' , `| Run ID: ${run.id},\n | Thread ID: ${thread.id},\n | Message ID: ${message.id}\n`);
+        console.log(`| Run:\n| Run ID: ${run.id}\n| Thread ID: ${thread.id}\n| Message ID: ${message.id}`);
         console.log('--------------------------------------');
 
         while (true) {
@@ -214,10 +215,14 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
 
         async function getLatestMessage (): Promise<{action: string, index: number}> {
 
-            const messages = await openai.beta.threads.messages.list(thread.id);
+            const messages = await openai.beta.threads.messages.list(thread.id, {
+                order: 'desc'
+            });
+
             let latest: string = '';
 
-            for (let i = messages.data.length - 1; i >= 0; i--) { 
+            //i will only make it through [0, 1] but keeping it as a for loop for testing
+            for (let i = 0; i < messages.data.length; i++) { 
 
                 if (messages.data[i].role !== 'assistant') {
                     continue;
@@ -225,10 +230,11 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
 
                 if (messages.data[i].content[0].type === 'text') {
                     latest = (messages.data[i].content[0] as MessageContentText).text.value;
+                    console.log(i, latest);
                     break;
                 }
             }
-           
+            
             const regex = /(continue|back)\s+(\d+)/i;
             const match = latest.match(regex);
 

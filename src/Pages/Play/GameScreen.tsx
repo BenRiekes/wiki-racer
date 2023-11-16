@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import axios, { AxiosError } from "axios";
+import React, { useEffect, useRef } from "react";
 
 import { GameProps } from "./GameContainer";
 import useStopWatch from "../../Hooks/useStopWatch";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import ArticleDisplay from "../../Components/ArticleDisplay";
 import EndModal from "../../Components/EndModal";
-
-
 import { Article, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
-import { Flex, VStack, HStack, Heading, Text, Badge, Divider, Box, Link, Stack } from "@chakra-ui/layout";
-import { useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { Flex, VStack, HStack, Heading, Text, Divider } from "@chakra-ui/layout";
+import { useBreakpointValue} from "@chakra-ui/react";
 
 function GameScreen (props: GameProps) {
     const isRowLayout = useBreakpointValue({ base: false, md: true });
@@ -39,12 +36,12 @@ function GameScreen (props: GameProps) {
                         threadId.current
                     );
 
-                    console.log(`
-                        | ---------- Assistant Response ---------- | \n
-                        | Thread ID: ${assistantRes.threadId}
-                        | Action: ${assistantRes.action}
-                        | Index: ${assistantRes.index}
-                    `);
+                    // console.log(`
+                    //     |Assistant Response\n
+                    //     |Thread ID: ${assistantRes.threadId}\n
+                    //     |Action: ${assistantRes.action}\n
+                    //     |Index: ${assistantRes.index}
+                    // `);
                     
                     if (!threadId.current) {
                         threadId.current = assistantRes.threadId;
@@ -55,8 +52,12 @@ function GameScreen (props: GameProps) {
                         if (!props.opponentState.currentArticle.links) {
                             throw new Error ('No links found for current article');
                         }
+                        
+                        const index = assistantRes.index <= props.opponentState.currentArticle.links.length - 1 ?
+                            (assistantRes.index) : (Math.floor(Math.random() * props.opponentState.currentArticle.links.length))
+                        ;
 
-                        const selectionURL: string = props.opponentState.currentArticle.links[assistantRes.index].url;
+                        const selectionURL: string = props.opponentState.currentArticle.links[index].url;
                         const selectionArticle: Article = await fetchArticle('URL', selectionURL, true);
                         props.handlePlayerState(selectionArticle, 'Opp');
 
@@ -82,7 +83,7 @@ function GameScreen (props: GameProps) {
         }
         
         if (props.winner === null) {
-            fetchAssistantResponse();
+            setTimeout(fetchAssistantResponse, 3900);
         }
 
        

@@ -7,6 +7,7 @@ function StepCard (props: CardProps) {
     return (
         <Card 
             size='sm'
+            _hover={{ boxShadow: 'xl' }}
             direction={{ base: 'column', lg: 'row' }}
             overflow='hidden'
             variant='outline'
