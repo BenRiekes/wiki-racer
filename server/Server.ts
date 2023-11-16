@@ -1,20 +1,24 @@
 import express, { Request, Response } from 'express';
 import axios, { AxiosError } from 'axios';
 import { fileURLToPath } from 'url'
-import * as cheerio from 'cheerio';
+
 import path from 'path';
 import cors from 'cors';
-import { contains } from 'cheerio/lib/static';
+import OpenAI from 'openai';
+import * as dotenv from 'dotenv';
+import * as cheerio from 'cheerio';
 import { Link } from 'react-router-dom';
-
+import { MessageContentText } from 'openai/resources/beta/threads/messages/messages';
 //---------Setup------------------------
 
+dotenv.config();
 const PORT = 3002;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors());
+app.use(express.json({limit: '50mb'}));
 app.use(express.static(path.join(__dirname, '../build')));
 
 //-----------Types---------------------
@@ -33,7 +37,13 @@ type Article = {
     url: string;
     body?: Paragraph[];
     links?: LinkSegment[];
-}   
+}
+
+//----------Open AI -------------------
+
+const openai = new OpenAI({
+    apiKey: process.env.OPEN_AI_KEY as string
+});
 
 //------------Immutable----------------
 
@@ -89,7 +99,144 @@ function processParagraphs ($: cheerio.CheerioAPI): {body: Paragraph[], links: L
     return {body: paragraphs, links: links};
 }
 
+
 //------------API----------------------
+
+app.post ('/api/assistant', async (req: Request, res: Response) => {
+
+    const { rootArticle, tailArticle, currentArticle, articleHistory, threadId} : { 
+        rootArticle: Article, tailArticle: Article, 
+        currentArticle: Article, articleHistory: Article[], threadId: string | undefined
+    } = req.body;
+
+    function formatMessage (): string {
+        const rootMsg = `The article you are starting from: ${rootArticle.title}.`;
+        const tailMsg = `The article you are trying to reach: ${tailArticle.title}.`;
+        const currentMsg = `The article you are currently on: ${currentArticle.title}.`;
+
+        const linksMsg = (): string | string[] => {
+
+            if (!currentArticle.links) {
+                return 'There are no links to click on, maybe try going back?';
+            }
+
+            const formatWikiTitleFromURL = (url: string) => {
+                const lastSlashIndex = url.lastIndexOf('/');
+                const titleWithUnderscores = url.substring(lastSlashIndex + 1);
+                const title = titleWithUnderscores.replace(/_/g, ' ');
+                return decodeURIComponent(title);
+            }
+
+            let linksArr: string[] = [];
+
+            for (let i = 0; i < currentArticle.links.length; i++) {
+                const str = `Text: ${currentArticle.links[i].text}, URL: ${formatWikiTitleFromURL(currentArticle.links[i].url)}`;
+                linksArr.push(str);
+            }
+
+            return linksArr; 
+        }
+
+        const historyMsg = (): string | string[] => {
+
+            if (!articleHistory || articleHistory.length === 1) {
+                return '';
+            }
+
+            let historyArr: string[] = [];
+
+            for (let i = 0; i < articleHistory.length; i++) {
+                const str = `${articleHistory[i].title}`;
+                historyArr.push(str);
+            }
+
+            return historyArr;
+        }
+
+        const compiledMsg = `${rootMsg} ${tailMsg} ${currentMsg} ${linksMsg()} ${historyMsg()}
+            If you would like to continue, reply with: continue [YOUR SELECTED INDEX] 
+            ${historyMsg() ? 'If you would like to go back, reply with: back [YOUR SELECTED INDEX]' : ''}
+        `;
+
+        return (compiledMsg);
+    }
+
+    try {
+
+        const thread = threadId ? 
+            (await openai.beta.threads.retrieve(threadId)) :
+            (await openai.beta.threads.create())
+        ;
+
+        const message = await openai.beta.threads.messages.create(thread.id, {
+            role: 'user',
+            content: formatMessage(),
+        });
+
+        const run = await openai.beta.threads.runs.create(thread.id, {
+            assistant_id: process.env.OPEN_AI_ASSISTANT as string,
+        });
+
+        console.log('Run:\n' , `\tRun ID: ${run.id},\n \tThread ID: ${thread.id} \n \tMessage ID: ${message.id} \n`);
+
+        while (true) {
+
+            const runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+
+            if (runStatus.status === 'queued' || runStatus.status === 'in_progress') {
+                setTimeout(() => {}, 500);
+            } 
+            
+            if (runStatus.status === 'completed') {
+                console.log('| \tRun Status: Completed');
+                break;
+            } 
+            
+            if (runStatus.status === 'failed') {
+                console.log('| \tRun Status: Failed');
+                return res.status(500).json({message: 'An unknown error occured'});
+            }
+        }
+
+        async function getLatestMessage (): Promise<{action: string, index: number}>{
+
+            const messages = await openai.beta.threads.messages.list(thread.id);
+            let latest: string = '';
+
+            for (let i = messages.data.length - 1; i >= 0; i--) { 
+
+                if (messages.data[i].role !== 'assistant') {
+                    continue;
+                }
+
+                if (messages.data[i].content[0].type === 'text') {
+                    latest = (messages.data[i].content[0] as MessageContentText).text.value;
+                    break;
+                }
+            }
+           
+            const regex = /(continue|back)\s+(\d+)/i;
+            const match = latest.match(regex);
+
+            if (!match) {
+                throw new Error ('No valid action found');
+            }
+
+            return {
+                action: match[1],
+                index: parseInt(match[2])
+            };
+        }
+
+        const {action, index} = await getLatestMessage();
+        res.status(200).json({action: action, index: index, threadId: thread.id});
+
+    } catch (error) {
+        return res.status(500).json({message: 'An unknown error occured'});
+    }
+}) 
+
+
 
 app.get('/api/fetch-article', async (req: Request, res: Response) => {
     const value = req.query.value as string;

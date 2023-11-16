@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios, { AxiosError } from "axios";
 
 import { GameProps } from "./GameContainer";
 import useStopWatch from "../../Hooks/useStopWatch";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import ArticleDisplay from "../../Components/ArticleDisplay";
-import { Paragraph, LinkSegment, Article, PlayerState, fetchArticle} from '../../Utils/Functions'; 
+
+import OpenAI from "openai";
+import { Paragraph, LinkSegment, Article, PlayerState, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
 import { Flex, VStack, HStack, Heading, Text, Badge, Divider, Box, Link, Stack } from "@chakra-ui/layout";
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, useBreakpointValue } from "@chakra-ui/react";
 
@@ -13,15 +16,79 @@ function GameScreen (props: GameProps) {
     const { elapsedTime, handleStart, handleStop, 
         handleReset, formattedTime } = useStopWatch()
     ;
+
+    const isRowLayout = useBreakpointValue(
+        { base: false, md: true }
+    );
     
-    const [minutes, seconds, milliseconds] = formattedTime.split(':');
-    const isRowLayout = useBreakpointValue({ base: false, md: true });
+    const threadId = useRef<string | undefined>(undefined);
+    const requestInProgress = useRef<boolean>(false);
+    
+    useEffect(() => {
+
+        async function fetchAssistantResponse () {
+
+            if (
+                !requestInProgress.current &&
+                props.rootArticle && props.tailArticle &&
+                props.opponentState?.currentArticle && props.opponentState?.history
+            ) {
+                requestInProgress.current = true;
+
+                try {
+                    const assistantRes: AssistantResponse = await fetchAssistant(
+                        props.rootArticle,
+                        props.tailArticle,
+                        props.opponentState.currentArticle,
+                        props.opponentState.history,
+                        threadId.current
+                    );
+
+                    if (!threadId.current) {
+                        threadId.current = assistantRes.threadId;
+                    }
+
+                    if (assistantRes.action === 'continue') {
+
+                        if (!props.opponentState.currentArticle.links) {
+                            throw new Error ('No links found for current article');
+                        }
+
+                        const selectionURL: string = props.opponentState.currentArticle.links[assistantRes.index].url;
+                        const selectionArticle: Article = await fetchArticle('URL', selectionURL, true);
+                        props.handlePlayerState(selectionArticle, 'Opp');
+
+                    } else if (assistantRes.action === 'back') {
+
+                        if (!props.opponentState.history) {
+                            throw new Error ('No history found for opponent');
+                        }
+
+                        props.playerStateHistoryRemoveAfterIndex(assistantRes.index, 'Opp');
+
+                    } else {
+                        throw new Error ('Invalid action returned from assistant');
+                    }
+
+                } catch (error: unknown) {
+                    console.error(error);
+
+                } finally {
+                    requestInProgress.current = false;
+                } 
+            }
+        }
+
+        fetchAssistantResponse();
+
+    }, [props.opponentState?.currentArticle])
 
     //----------------------------------------
     
     function StopWatch () {
         const fontSize = isRowLayout? 'xl' : 'lg';
         const width = isRowLayout? 'auto' : '100%';
+        const [minutes, seconds, milliseconds] = formattedTime.split(':');
 
         return (
             <HStack width={width} spacing={1} p={1} alignSelf='flex-start' justifyContent='center'   borderRadius='md' backgroundColor='blue.100' color='white' >
@@ -93,19 +160,20 @@ function GameScreen (props: GameProps) {
                                 />
                             </VStack>
                         )}
-
-                       
+ 
                         <Divider 
                             orientation='horizontal' 
                             borderColor='black' 
                         />
 
-                        <ArticleDisplay isRowLayout={isRowLayout} playerState={props.playerState} handlePlayerState={props.handlePlayerState}/>
+                        <ArticleDisplay 
+                            isRowLayout={isRowLayout} 
+                            playerState={props.playerState} 
+                            handlePlayerState={props.handlePlayerState}
+                        />
                         
                     </VStack>
-
                 </Flex>  
-                  
             </VStack>
         </Flex>
     );

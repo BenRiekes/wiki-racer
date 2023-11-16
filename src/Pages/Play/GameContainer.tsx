@@ -82,6 +82,12 @@ function GameContainer () {
 
         let history = [];
 
+        if (article.url === tailArticle?.url) {
+            alert(`${player} wins!`);
+            handlePlayingStatus(false);
+            return;
+        }
+
         if (player === 'Player') {
 
             setPlayerState((prevState) => {

@@ -21,6 +21,12 @@ export type PlayerState = {
     history: Article[];
 };
 
+export type AssistantResponse = {
+    action: 'continue' | 'back';
+    index: number;
+    threadId: string;
+}
+
 export const BASE_URL = 'https://en.wikipedia.org/wiki/';
 export const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
 
@@ -35,8 +41,26 @@ export async function fetchArticle (type: 'Name' | 'URL', value: string, needsPr
         return article;
 
     } catch (error: unknown) {
-
         throw new Error('Failed to fetch article');
+    }
+}
+
+export async function fetchAssistant (rootArticle: Article, tailArticle: Article, currentArticle: Article, history: Article[], threadId?: string) {
+
+    try {
+        const res = await axios.post<AssistantResponse>('api/assistant', {
+            rootArticle: rootArticle,
+            tailArticle: tailArticle,
+            currentArticle: currentArticle,
+            history: history,
+            threadId: threadId ? threadId : undefined
+        });
+
+        const assistantResponse: AssistantResponse = res.data;
+        return assistantResponse;
+
+    } catch (error: unknown) {
+        throw new Error('Failed to fetch assistant');
     }
 }
 
