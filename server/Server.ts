@@ -219,11 +219,10 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
                 order: 'desc'
             });
 
-            
             const latest = (): string => {
 
                 for (let i = 0; i < messages.data.length; i++) {
-                    
+
                     if (messages.data[i].role === 'assistant') {
                         return (messages.data[i].content[0] as MessageContentText).text.value;
                     }
@@ -232,7 +231,6 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
                 throw new Error('No latest message found');
             }
         
-            console.log(`| Latest Message: ${latest()}`);
             const regex = /(continue|back)\s+(\d+)/i;
             const match = latest().match(regex);
 

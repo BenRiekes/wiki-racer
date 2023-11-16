@@ -57,7 +57,6 @@ export async function fetchAssistant (rootArticle: Article, tailArticle: Article
         });
 
         const assistantResponse: AssistantResponse = res.data;
-        console.log(assistantResponse);
         return assistantResponse;
 
     } catch (error: unknown) {

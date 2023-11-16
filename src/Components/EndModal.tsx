@@ -31,7 +31,12 @@ function EndModal (props: EndModalProps) {
 
         <Modal size={'md'}  isOpen={isOpen} onClose={onClose} isCentered={true} motionPreset='slideInBottom'>
 
-            <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(10px) hue-rotate(90deg)'/>
+            <ModalOverlay 
+                bg='none'
+                backdropFilter='auto'
+                backdropInvert='80%'
+                backdropBlur='2px'
+            />
 
             <ModalContent w='90%' bg={props.winner === 'Player' ? 'green.100' : 'red.100'}>
 

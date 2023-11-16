@@ -36,12 +36,12 @@ function GameScreen (props: GameProps) {
                         threadId.current
                     );
 
-                    // console.log(`
-                    //     |Assistant Response\n
-                    //     |Thread ID: ${assistantRes.threadId}\n
-                    //     |Action: ${assistantRes.action}\n
-                    //     |Index: ${assistantRes.index}
-                    // `);
+                    console.log(`
+                        |Assistant Response\n
+                        |Thread ID: ${assistantRes.threadId}\n
+                        |Action: ${assistantRes.action}\n
+                        |Index: ${assistantRes.index}
+                    `);
                     
                     if (!threadId.current) {
                         threadId.current = assistantRes.threadId;
@@ -53,11 +53,7 @@ function GameScreen (props: GameProps) {
                             throw new Error ('No links found for current article');
                         }
                         
-                        const index = assistantRes.index <= props.opponentState.currentArticle.links.length - 1 ?
-                            (assistantRes.index) : (Math.floor(Math.random() * props.opponentState.currentArticle.links.length))
-                        ;
-
-                        const selectionURL: string = props.opponentState.currentArticle.links[index].url;
+                        const selectionURL: string = props.opponentState.currentArticle.links[assistantRes.index].url;
                         const selectionArticle: Article = await fetchArticle('URL', selectionURL, true);
                         props.handlePlayerState(selectionArticle, 'Opp');
 
