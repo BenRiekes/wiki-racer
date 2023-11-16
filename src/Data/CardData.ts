@@ -1,12 +1,12 @@
 
 export const HeaderCardData = [
-    {title: 'You', desc: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus, blanditiis.'},
-    {title: 'Vs', desc: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus, blanditiis.'},
-    {title: 'AI', desc: 'Lorem ipsum dolor sit amet consectetur, blanditiis.'}
+    {title: 'You', desc: 'Embark on a quest of knowledge, where each click unveils worlds unseen. Champion of trivia, master of links, youre the seeker of hidden gems.'},
+    {title: 'Vs', desc: 'Heres the arena of wits, where rivals clash in a battle of intellect. A duel of minds, a race of wisdom, challenging every fact and figure.'},
+    {title: 'AI', desc: 'Meet your digital challenger, an AI brewed in the depths of data. A synthetic sage, a coded connoisseur, navigating the labyrinth of lore.'}
 ]
 
 
-export const ExampleCardData = [
+export const ExampleCardData1 = [
     {
         title: 'Abraham Lincoln', 
         desc: 'Abraham Lincoln was the 16th President of the United States, serving from March 1861 until his assassination in April 1865.', 
@@ -28,4 +28,27 @@ export const ExampleCardData = [
         href: 'https://en.wikipedia.org/wiki/Steve_Jobs'
     },
 ];
+
+export const ExampleCardData2 = [
+    {
+        title: 'Lose Angeles Lakers', 
+        desc: 'The Los Angeles Lakers are an American professional basketball team based in Los Angeles.', 
+        href: 'https://en.wikipedia.org/wiki/Los_Angeles_Lakers'
+    },
+    {
+        title: 'American Express', 
+        desc: 'American Express Company (Amex) is an American bank holding company and multinational financial services corporation that specializes in payment cards.', 
+        href: 'https://en.wikipedia.org/wiki/American_Express'
+    },
+    {
+        title: 'Apple Inc.', 
+        desc: 'Apple Inc. is an American multinational technology company headquartered in Cupertino, California.', 
+        href: 'https://en.wikipedia.org/wiki/Apple_Inc.'
+    },
+    {
+        title: 'Windows XP', 
+        desc: 'Windows XP is a major release of Microsofts Windows NT operating system. It was released to manufacturing on August 24, 2001, and later to retail on October 25, 2001.', 
+        href: 'https://en.wikipedia.org/wiki/Windows_XP'
+    },
+]
 

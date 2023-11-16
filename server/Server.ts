@@ -212,7 +212,7 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             }
         }
 
-        async function getLatestMessage (): Promise<{action: string, index: number}>{
+        async function getLatestMessage (): Promise<{action: string, index: number}> {
 
             const messages = await openai.beta.threads.messages.list(thread.id);
             let latest: string = '';

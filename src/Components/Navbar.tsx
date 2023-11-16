@@ -1,4 +1,4 @@
-import Reas, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 
 import Icon from '@mdi/react';
@@ -16,7 +16,7 @@ interface NavbarProps {
     to: string;
 }
 
-const Links = ['Home', 'Play', 'Profile'];
+const Links = ['Home', 'Play'];
 
 //------------------------------------
 
@@ -26,10 +26,7 @@ const NavLink = (props: NavbarProps) => {
     return (
         <Box 
             as={Link} px={2} py={1} rounded = {'md'} to={props.to} color='white'
-            _hover = {{
-                textDecoration: 'none', 
-                bg: 'blue.50'
-            }}
+            _hover = {{textDecoration: 'none', bg: 'blue.50'}}
         >
             {children}
         </Box>
