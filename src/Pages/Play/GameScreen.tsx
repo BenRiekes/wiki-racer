@@ -44,6 +44,13 @@ function GameScreen (props: GameProps) {
                         threadId.current
                     );
 
+                    console.log(`
+                        | ---------- Assistant Response ---------- | \n
+                        | Thread ID: ${assistantRes.threadId}
+                        | Action: ${assistantRes.action}
+                        | Index: ${assistantRes.index}
+                    `);
+                    
                     if (!threadId.current) {
                         threadId.current = assistantRes.threadId;
                     }

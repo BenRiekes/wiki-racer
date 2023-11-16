@@ -18,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors());
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({limit: '500mb'}));
 app.use(express.static(path.join(__dirname, '../build')));
 
 //-----------Types---------------------
@@ -110,14 +110,11 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
     } = req.body;
 
     function formatMessage (): string {
-        const rootMsg = `The article you are starting from: ${rootArticle.title}.`;
-        const tailMsg = `The article you are trying to reach: ${tailArticle.title}.`;
-        const currentMsg = `The article you are currently on: ${currentArticle.title}.`;
-
-        const linksMsg = (): string | string[] => {
+        
+        const getLinks = (): string[] => {
 
             if (!currentArticle.links) {
-                return 'There are no links to click on, maybe try going back?';
+                return [];
             }
 
             const formatWikiTitleFromURL = (url: string) => {
@@ -130,17 +127,17 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             let linksArr: string[] = [];
 
             for (let i = 0; i < currentArticle.links.length; i++) {
-                const str = `Text: ${currentArticle.links[i].text}, URL: ${formatWikiTitleFromURL(currentArticle.links[i].url)}`;
+                const str = `${formatWikiTitleFromURL(currentArticle.links[i].url)}`;
                 linksArr.push(str);
             }
 
             return linksArr; 
         }
 
-        const historyMsg = (): string | string[] => {
+        const getHistory = (): string[] => {
 
             if (!articleHistory || articleHistory.length === 1) {
-                return '';
+                return [];
             }
 
             let historyArr: string[] = [];
@@ -153,9 +150,22 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             return historyArr;
         }
 
-        const compiledMsg = `${rootMsg} ${tailMsg} ${currentMsg} ${linksMsg()} ${historyMsg()}
-            If you would like to continue, reply with: continue [YOUR SELECTED INDEX] 
-            ${historyMsg() ? 'If you would like to go back, reply with: back [YOUR SELECTED INDEX]' : ''}
+        const rootMsg = `The article you are starting from: ${rootArticle.title}.`;
+        const tailMsg = `The article you are trying to reach: ${tailArticle.title}.`;
+        const currentMsg = `The article you are currently on: ${currentArticle.title}.`;
+
+        const linksMsg = currentArticle.links && currentArticle.links.length > 0 ? 
+            (`Fowards array: ${getLinks()}`) :
+            ('Fowards array: The fowards array is empty, please select an index from the backwards array')
+        ;
+
+        const historyMsg = articleHistory && articleHistory.length > 1 ? 
+            (`Backwards array: ${getHistory()}`) :
+            ('Backwards array: You are on the first article, please select an index from the fowards array')
+        ;
+
+        const compiledMsg = `
+            ${rootMsg} ${tailMsg} ${currentMsg} ${linksMsg} ${historyMsg}
         `;
 
         return (compiledMsg);
@@ -177,7 +187,9 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             assistant_id: process.env.OPEN_AI_ASSISTANT as string,
         });
 
-        console.log('Run:\n' , `\tRun ID: ${run.id},\n \tThread ID: ${thread.id} \n \tMessage ID: ${message.id} \n`);
+        console.log('--------------------------------------');
+        console.log('| Run:\n' , `| Run ID: ${run.id},\n | Thread ID: ${thread.id},\n | Message ID: ${message.id}\n`);
+        console.log('--------------------------------------');
 
         while (true) {
 
@@ -188,12 +200,14 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             } 
             
             if (runStatus.status === 'completed') {
-                console.log('| \tRun Status: Completed');
+                console.log('| Run Status: Completed');
+                console.log('--------------------------------------');
                 break;
             } 
             
             if (runStatus.status === 'failed') {
-                console.log('| \tRun Status: Failed');
+                console.log('| Run Status: Failed');
+                console.log('--------------------------------------');
                 return res.status(500).json({message: 'An unknown error occured'});
             }
         }
@@ -229,6 +243,7 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
         }
 
         const {action, index} = await getLatestMessage();
+        console.log(`| Action: ${action}, Index: ${index}`);
         res.status(200).json({action: action, index: index, threadId: thread.id});
 
     } catch (error) {
