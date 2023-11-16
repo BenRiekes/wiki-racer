@@ -219,24 +219,22 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
                 order: 'desc'
             });
 
-            let latest: string = '';
-
-            //i will only make it through [0, 1] but keeping it as a for loop for testing
-            for (let i = 0; i < messages.data.length; i++) { 
-
-                if (messages.data[i].role !== 'assistant') {
-                    continue;
-                }
-
-                if (messages.data[i].content[0].type === 'text') {
-                    latest = (messages.data[i].content[0] as MessageContentText).text.value;
-                    console.log(i, latest);
-                    break;
-                }
-            }
             
+            const latest = (): string => {
+
+                for (let i = 0; i < messages.data.length; i++) {
+                    
+                    if (messages.data[i].role === 'assistant') {
+                        return (messages.data[i].content[0] as MessageContentText).text.value;
+                    }
+                }
+
+                throw new Error('No latest message found');
+            }
+        
+            console.log(`| Latest Message: ${latest()}`);
             const regex = /(continue|back)\s+(\d+)/i;
-            const match = latest.match(regex);
+            const match = latest().match(regex);
 
             if (!match) {
                 throw new Error ('No valid action found');
