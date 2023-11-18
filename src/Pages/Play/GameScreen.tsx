@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
 
 import { GameProps } from "./GameContainer";
-import useStopWatch from "../../Hooks/useStopWatch";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import ArticleDisplay from "../../Components/ArticleDisplay";
+import StopWatch from "../../Components/StopWatch";
 import EndModal from "../../Components/EndModal";
+
 import { Article, AssistantResponse, fetchArticle, fetchAssistant} from '../../Utils/Functions'; 
 import { Flex, VStack, HStack, Heading, Text, Divider } from "@chakra-ui/layout";
 import { useBreakpointValue} from "@chakra-ui/react";
@@ -79,34 +80,12 @@ function GameScreen (props: GameProps) {
         }
         
         if (props.winner === null) {
-            setTimeout(fetchAssistantResponse, 3900);
+            setTimeout(fetchAssistantResponse, 10000);
         }
 
-       
+       //Possibly change to playerState.currentArticle
+       //To have the ai only trigger when the player goes
     }, [props.opponentState?.currentArticle]);
-
-
-
-    //----------------------------------------
-    
-    function StopWatch () {
-        const { elapsedTime, handleStart, handleStop,  handleReset, formattedTime } = useStopWatch();
-
-        const fontSize = isRowLayout? 'xl' : 'lg';
-        const width = isRowLayout? 'auto' : '100%';
-        const [minutes, seconds, milliseconds] = formattedTime.split(':');
-
-        return (
-            <HStack width={width} spacing={1} p={1} alignSelf='flex-start' justifyContent='center'   borderRadius='md' backgroundColor='blue.100' color='white' >
-                <Text fontSize={fontSize} fontWeight='bold'>{minutes}</Text>
-                <Text fontSize={fontSize}>:</Text>
-                <Text fontSize={fontSize} fontWeight='bold'>{seconds}</Text>
-                <Text fontSize={fontSize}>:</Text>
-                <Text fontSize={fontSize} fontWeight='bold'>{milliseconds}</Text>
-            </HStack>
-        )
-    }
-
 
     //----------------------------------------
 
@@ -151,7 +130,7 @@ function GameScreen (props: GameProps) {
                             {isRowLayout ? (
 
                                 <HStack spacing={5} w='100%'>
-                                    <StopWatch />
+                                    <StopWatch isRunning={props.isPlaying} isRowLayout={true} />
 
                                     <BreadCrumbs 
                                         playerState={props.playerState} 
@@ -161,7 +140,7 @@ function GameScreen (props: GameProps) {
                             ) : (
 
                                 <VStack spacing={5} w='100%'>
-                                    <StopWatch />
+                                    <StopWatch isRunning={props.isPlaying} isRowLayout={false} />
 
                                     <BreadCrumbs 
                                         playerState={props.playerState} 

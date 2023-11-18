@@ -7,7 +7,6 @@ import cors from 'cors';
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import * as cheerio from 'cheerio';
-import { Link } from 'react-router-dom';
 import { MessageContentText } from 'openai/resources/beta/threads/messages/messages';
 //---------Setup------------------------
 
@@ -99,7 +98,6 @@ function processParagraphs ($: cheerio.CheerioAPI): {body: Paragraph[], links: L
     return {body: paragraphs, links: links};
 }
 
-
 //------------API----------------------
 
 app.post ('/api/assistant', async (req: Request, res: Response) => {
@@ -168,7 +166,6 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
             ${rootMsg}\n ${tailMsg} \n${currentMsg} \n${linksMsg}\n ${historyMsg}
         `;
 
-        console.log('--------------------------------------');
         return (compiledMsg);
     }
 
@@ -251,9 +248,7 @@ app.post ('/api/assistant', async (req: Request, res: Response) => {
     } catch (error) {
         return res.status(500).json({message: 'An unknown error occured'});
     }
-}) 
-
-
+}); 
 
 app.get('/api/fetch-article', async (req: Request, res: Response) => {
     const value = req.query.value as string;
@@ -296,8 +291,6 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
         return `${BASE_URL}${nameValueJoined}`;
     }
 
-   
-
     try {
         const cheerioRequestURL: string = type === 'Name' ? formatToWikiURL(value) : value;
         const $: cheerio.CheerioAPI = await fetchCheerio(cheerioRequestURL);
@@ -337,7 +330,6 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
         }
     }  
 });
-
 
 app.get('*', (_req, res) => {
     res.sendFile(path.resolve(__dirname, '../build', 'index.html'));

@@ -1,19 +1,10 @@
-import React, { useState, useEffect, useCallback, } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
-
-import Icon from '@mdi/react';
+import React, { useState } from 'react';
+import { Flex } from '@chakra-ui/react';
 import GameScreen from './GameScreen';
 import SettingsScreen from './SettingsScreen';
-import SearchInput from '../../Components/SearchInput';
-import { Paragraph, LinkSegment, Article, PlayerState, fetchArticle, RANDOM_URL} from '../../Utils/Functions'; 
-
-import { mdiRefresh } from '@mdi/js';
-import { Button, Box, HStack, Heading, VStack, Flex} from '@chakra-ui/react';
-import { root } from 'cheerio/lib/static';
+import { Article, PlayerState, fetchArticle} from '../../Utils/Functions'; 
 
 //----------------------------
-
 
 export interface GameProps {
     isPlaying: boolean;
@@ -34,12 +25,9 @@ export interface GameProps {
     playerStateHistoryRemoveAfterIndex: (index: number, player: 'Player' | 'Opp') => void;
 }
 
-
 //----------------------------
 
 function GameContainer () {
-
-    
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [winner, setWinner] = useState<'Player' | 'Opp' | null>(null);
 
@@ -83,7 +71,6 @@ function GameContainer () {
 
     //--------------------------------------------------------
 
-
     function handlePlayerState (article: Article, player: 'Player' | 'Opp') {
 
         let history = [];
@@ -98,14 +85,11 @@ function GameContainer () {
         }
 
         if (player === 'Player') {
-
             setPlayerState((prevState) => {
                 history = prevState?.history || [];
                 return {...prevState, currentArticle: article, history: [...history, article]}
             });
-
         } else { //AI
-
             setOpponentState((prevState) => {
                 history = prevState?.history || [];
                 return {...prevState, currentArticle: article, history: [...history, article]}

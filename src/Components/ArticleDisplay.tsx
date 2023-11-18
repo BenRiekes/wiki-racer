@@ -42,7 +42,6 @@ function ArticleDisplay (props: ArticleDisplayProps) {
                             <Box as="span" flex='1' textAlign='left'>
                                 Links 
                             </Box>
-                            
                         </AccordionButton>
                     </h2>
 

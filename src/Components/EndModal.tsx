@@ -38,7 +38,7 @@ function EndModal (props: EndModalProps) {
                 backdropBlur='2px'
             />
 
-            <ModalContent w='90%' bg={props.winner === 'Player' ? 'green.100' : 'red.100'}>
+            <ModalContent w='100%' bg={props.winner === 'Player' ? 'green.100' : 'red.100'}>
 
                 <ModalHeader >
                     <Heading size = 'lg' color='white'>
