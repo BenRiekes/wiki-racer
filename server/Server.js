@@ -16,12 +16,15 @@ app.use(cors());
 app.use(express.json({ limit: '500mb' }));
 app.use(express.static(path.join(__dirname, '../build')));
 //----------Open AI -------------------
+
 const openai = new OpenAI({
     apiKey: process.env.OPEN_AI_KEY
 });
+
 //------------Immutable----------------
 const BASE_URL = 'https://en.wikipedia.org/wiki/';
 const RANDOM_URL = 'https://en.wikipedia.org/wiki/Special:Random';
+
 function processParagraphs($) {
     let links = [];
     let paragraphs = [];
@@ -52,9 +55,11 @@ function processParagraphs($) {
                 currentText += $(element).text();
             }
         });
+        
         if (currentText.trim()) {
             paragraph.push(currentText);
         }
+
         if (paragraph.length > 0) {
             paragraphs.push(paragraph);
         }
