@@ -7,7 +7,7 @@ import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import * as cheerio from 'cheerio';
 //---------Setup------------------------
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const PORT = 3002;
 const app = express();
