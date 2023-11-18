@@ -10,7 +10,7 @@ import * as cheerio from 'cheerio';
 import { MessageContentText } from 'openai/resources/beta/threads/messages/messages';
 //---------Setup------------------------
 
-dotenv.config();
+
 const PORT = 3002;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +19,7 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json({limit: '500mb'}));
 app.use(express.static(path.join(__dirname, '../build')));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 //-----------Types---------------------
 
