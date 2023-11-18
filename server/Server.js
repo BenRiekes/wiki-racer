@@ -8,10 +8,12 @@ import * as dotenv from 'dotenv';
 import * as cheerio from 'cheerio';
 //---------Setup------------------------
 dotenv.config();
+
 const PORT = 3002;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 app.use(cors());
 app.use(express.json({ limit: '500mb' }));
 app.use(express.static(path.join(__dirname, '../build')));
@@ -55,7 +57,7 @@ function processParagraphs($) {
                 currentText += $(element).text();
             }
         });
-        
+
         if (currentText.trim()) {
             paragraph.push(currentText);
         }
