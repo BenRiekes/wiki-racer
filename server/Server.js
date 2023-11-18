@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, '../build')));
 //----------Open AI -------------------
 
 const openai = new OpenAI({
-    apiKey: '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' //process.env.OPEN_AI_KEY
+    apiKey: process.env.OPEN_AI_KEY
 });
 
 //------------Immutable----------------
@@ -123,7 +123,7 @@ app.post('/api/assistant', async (req, res) => {
             content: formatMessage(),
         });
         const run = await openai.beta.threads.runs.create(thread.id, {
-            assistant_id: 'asst_ZYH8Z1KeiTGIkXaqvbzXk3lC',
+            assistant_id: process.env.OPEN_AI_ASSISTANT,
         });
         console.log('--------------------------------------');
         console.log(`| Run:\n| Run ID: ${run.id}\n| Thread ID: ${thread.id}\n| Message ID: ${message.id}`);
