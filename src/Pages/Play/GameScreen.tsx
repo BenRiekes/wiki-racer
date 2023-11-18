@@ -16,7 +16,6 @@ function GameScreen (props: GameProps) {
     const requestInProgress = useRef<boolean>(false);
     const threadId = useRef<string | undefined>(undefined);
     
-    
     useEffect(() => {
 
         async function fetchAssistantResponse () {
@@ -37,13 +36,6 @@ function GameScreen (props: GameProps) {
                         threadId.current
                     );
 
-                    console.log(`
-                        |Assistant Response\n
-                        |Thread ID: ${assistantRes.threadId}\n
-                        |Action: ${assistantRes.action}\n
-                        |Index: ${assistantRes.index}
-                    `);
-                    
                     if (!threadId.current) {
                         threadId.current = assistantRes.threadId;
                     }
@@ -90,7 +82,6 @@ function GameScreen (props: GameProps) {
     //----------------------------------------
 
     return (
-
         <>
             <Flex width='100%' h='auto' minHeight='100vh' justifyContent='center' bg='blue.100'>
 
@@ -115,7 +106,7 @@ function GameScreen (props: GameProps) {
                                 </HStack>
                             ): (
                                 <VStack w='100%' alignSelf='flex-start' alignItems='flex-start'>
-                                    
+
                                     <Heading w='100%' maxW='100%' size='md' p={2} borderRadius='md' backgroundColor='gray.200' isTruncated>
                                         Start: {props.rootArticle?.title}
                                     </Heading>
@@ -128,20 +119,16 @@ function GameScreen (props: GameProps) {
                             )}
                             
                             {isRowLayout ? (
-
                                 <HStack spacing={5} w='100%'>
                                     <StopWatch isRunning={props.isPlaying} isRowLayout={true} />
-
                                     <BreadCrumbs 
                                         playerState={props.playerState} 
                                         playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
                                     />
                                 </HStack>
                             ) : (
-
                                 <VStack spacing={5} w='100%'>
                                     <StopWatch isRunning={props.isPlaying} isRowLayout={false} />
-
                                     <BreadCrumbs 
                                         playerState={props.playerState} 
                                         playerStateHistoryRemoveAfterIndex={props.playerStateHistoryRemoveAfterIndex}
@@ -149,17 +136,13 @@ function GameScreen (props: GameProps) {
                                 </VStack>
                             )}
     
-                            <Divider 
-                                orientation='horizontal' 
-                                borderColor='black' 
-                            />
+                            <Divider orientation='horizontal' borderColor='black' />
 
                             <ArticleDisplay 
                                 isRowLayout={isRowLayout} 
                                 playerState={props.playerState} 
                                 handlePlayerState={props.handlePlayerState}
                             />
-                            
                         </VStack>
                     </Flex>  
                 </VStack>

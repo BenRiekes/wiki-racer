@@ -161,12 +161,9 @@ function GameContainer () {
     const props = {
         isPlaying, winner, playerState, opponentState, 
         rootArticle, tailArticle, rootTailLoading,
-        setPlayerState, setWinner,
-        setOpponentState,
-        handlePlayingStatus, 
-        handlePlayerState, 
-        handleRootTail,
-        playerStateHistoryRemoveAfterIndex
+        setPlayerState, setWinner, setOpponentState,
+        handlePlayingStatus, handlePlayerState, 
+        handleRootTail, playerStateHistoryRemoveAfterIndex
     }
  
     return (
