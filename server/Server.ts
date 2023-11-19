@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json({limit: '500mb'}));
 app.use(express.static(path.join(__dirname, '../build')));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config();
 
 //-----------Types---------------------
 
@@ -332,7 +332,7 @@ app.get('/api/fetch-article', async (req: Request, res: Response) => {
     }  
 });
 
-app.get('/*', (_req, res) => {
+app.get('*', (_req, res) => {
     res.sendFile(path.resolve(__dirname, '../build', 'index.html'));
 });
 

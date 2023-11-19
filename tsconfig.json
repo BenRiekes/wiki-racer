@@ -17,6 +17,6 @@
     "esm": true
   },
 
-  "include": ["src/**/*", "server/**/*"],
+  "include": ["src/**/*", "server/**/*", "ecosystem.cjs"],
   "exclude": ["node_modules"]
 }

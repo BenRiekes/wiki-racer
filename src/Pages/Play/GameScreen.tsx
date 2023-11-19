@@ -72,7 +72,7 @@ function GameScreen (props: GameProps) {
         }
         
         if (props.winner === null) {
-            setTimeout(fetchAssistantResponse, 10000);
+            setTimeout(fetchAssistantResponse, 10000); //How frequent to request ai response
         }
 
        //Possibly change to playerState.currentArticle

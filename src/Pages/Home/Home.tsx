@@ -3,7 +3,7 @@ import SmallCard from '../../Components/SmallCard';
 import {Box, VStack, Flex, Heading} from '@chakra-ui/react'
 import { HeaderCardData, ExampleCardData1, ExampleCardData2 } from '../../Data/CardData';
 
-function Home() {
+function Home() { 
 
     return (
 
